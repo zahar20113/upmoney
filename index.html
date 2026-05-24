@@ -9,22 +9,15 @@
         :root {
             --bg: #050508;
             --card: #0a0a14;
-            --card-hover: #0e0e1c;
             --border: #161628;
-            --border-active: #242440;
             --gold: #e8b830;
             --gold-light: #f5d060;
-            --gold-dark: #b8901a;
             --text: #f0f0f5;
             --text-secondary: #7a7a90;
             --green: #2dd4a8;
             --red: #f45050;
             --green-glow: rgba(45, 212, 168, 0.4);
             --red-glow: rgba(244, 80, 80, 0.4);
-            --wheel-win: #0f2a1e;
-            --wheel-win-alt: #122e22;
-            --wheel-lose: #1a1010;
-            --wheel-lose-alt: #1e1414;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -44,21 +37,13 @@
             overflow-x: hidden;
         }
 
-        ::-webkit-scrollbar { width: 0; }
-
-        /* ──────── Header ──────── */
+        /* Header */
         .header {
             width: 100%;
             max-width: 400px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            animation: fadeDown 0.7s ease;
-        }
-
-        @keyframes fadeDown {
-            from { opacity: 0; transform: translateY(-16px); }
-            to { opacity: 1; transform: translateY(0); }
         }
 
         .logo {
@@ -85,11 +70,9 @@
             gap: 8px;
             font-size: 14px;
             font-weight: 600;
-            letter-spacing: -0.2px;
             cursor: pointer;
             transition: all 0.25s;
         }
-        .balance-pill:active { transform: scale(0.96); }
         .balance-dot {
             width: 6px; height: 6px;
             background: var(--green);
@@ -100,7 +83,6 @@
             font-size: 11px;
             color: var(--text-secondary);
             font-weight: 500;
-            letter-spacing: 1px;
         }
 
         .profile-btn {
@@ -119,7 +101,6 @@
         .profile-btn svg {
             width: 18px; height: 18px;
             stroke: var(--text-secondary);
-            transition: stroke 0.25s;
         }
         .profile-dot {
             position: absolute;
@@ -130,17 +111,15 @@
             border: 2px solid var(--bg);
         }
 
-        /* ──────── Wheel ──────── */
+        /* Wheel */
         .wheel-stage {
             position: relative;
-            animation: scaleUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
         }
-
-        @keyframes scaleUp {
-            from { opacity: 0; transform: scale(0.8); }
-            to { opacity: 1; transform: scale(1); }
+        .wheel-frame {
+            position: relative;
+            width: 300px;
+            height: 300px;
         }
-
         .wheel-aura {
             position: absolute;
             inset: -30px;
@@ -153,35 +132,28 @@
         .wheel-aura.win {
             opacity: 1;
             background: radial-gradient(circle, var(--green-glow) 0%, transparent 70%);
-            animation: auraPulse 0.8s ease-out;
         }
         .wheel-aura.lose {
             opacity: 1;
             background: radial-gradient(circle, var(--red-glow) 0%, transparent 70%);
-            animation: auraPulse 0.8s ease-out;
         }
-
-        @keyframes auraPulse {
-            0% { opacity: 0; transform: scale(0.9); }
-            50% { opacity: 1; transform: scale(1.05); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .wheel-frame {
-            position: relative;
-            width: 320px;
-            height: 320px;
+        .wheel-ring {
+            position: absolute;
+            inset: -4px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255,255,255,0.06);
+            pointer-events: none;
+            z-index: 1;
         }
 
         canvas#wheelCanvas {
             position: relative;
             z-index: 2;
-            width: 320px;
-            height: 320px;
+            width: 300px;
+            height: 300px;
             display: block;
         }
 
-        /* Pointer -- clean triangle above the wheel */
         .wheel-pointer {
             position: absolute;
             top: -12px;
@@ -199,15 +171,13 @@
         .wheel-pointer.win svg { filter: drop-shadow(0 0 10px var(--green-glow)); }
         .wheel-pointer.lose svg { filter: drop-shadow(0 0 10px var(--red-glow)); }
 
-        /* Center hub */
         .wheel-hub {
             position: absolute;
             top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             z-index: 5;
             pointer-events: none;
-            width: 72px;
-            height: 72px;
+            width: 72px; height: 72px;
             border-radius: 50%;
             background: var(--bg);
             border: 2px solid rgba(255,255,255,0.06);
@@ -216,7 +186,7 @@
             align-items: center;
             justify-content: center;
             gap: 1px;
-            box-shadow: 0 0 30px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.03);
+            box-shadow: 0 0 30px rgba(0,0,0,0.6);
         }
         .hub-chance {
             font-size: 24px;
@@ -232,31 +202,14 @@
             color: var(--text-secondary);
         }
 
-        /* Outer ring */
-        .wheel-ring {
-            position: absolute;
-            inset: -4px;
-            border-radius: 50%;
-            border: 1.5px solid rgba(255,255,255,0.06);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* ──────── Chance Selector ──────── */
+        /* Chance Selector */
         .chance-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 8px;
             width: 100%;
             max-width: 400px;
-            animation: fadeUp 0.6s ease 0.25s both;
         }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         .chance-chip {
             background: var(--card);
             border: 1px solid var(--border);
@@ -264,12 +217,8 @@
             padding: 14px 4px;
             text-align: center;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.3s;
             position: relative;
-        }
-        .chance-chip:hover {
-            border-color: var(--border-active);
-            transform: translateY(-2px);
         }
         .chance-chip:active { transform: scale(0.94); }
         .chance-chip.active {
@@ -280,7 +229,6 @@
         .chip-value {
             font-size: 18px;
             font-weight: 700;
-            letter-spacing: -0.5px;
             color: var(--text);
             transition: color 0.3s;
         }
@@ -309,11 +257,10 @@
         }
         .chance-chip.active .chip-tag { opacity: 1; transform: scale(1); }
 
-        /* ──────── Bet Input ──────── */
+        /* Bet Input */
         .bet-section {
             width: 100%;
             max-width: 400px;
-            animation: fadeUp 0.6s ease 0.35s both;
         }
         .bet-row {
             display: flex;
@@ -368,15 +315,13 @@
         }
         .quick-btn:active {
             transform: scale(0.93);
-            background: var(--card-hover);
             color: var(--text);
         }
 
-        /* ──────── Play Button ──────── */
+        /* Play Button */
         .play-btn-wrap {
             width: 100%;
             max-width: 400px;
-            animation: fadeUp 0.6s ease 0.45s both;
         }
         .play-btn {
             width: 100%;
@@ -394,10 +339,6 @@
             overflow: hidden;
             box-shadow: 0 8px 32px rgba(232, 184, 48, 0.2);
         }
-        .play-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(232, 184, 48, 0.3);
-        }
         .play-btn:active { transform: scale(0.97); }
         .play-btn:disabled {
             opacity: 0.45;
@@ -411,7 +352,6 @@
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.18), transparent);
             transition: left 0.6s;
         }
-        .play-btn:hover .play-btn-shine { left: 100%; }
         .play-btn-content {
             display: flex;
             align-items: center;
@@ -433,66 +373,58 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .play-btn.loading .play-spinner { display: block; }
 
-        /* ──────── Toast ──────── */
-        .toast-container {
+        /* Result overlay */
+        .result-overlay {
             position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 1000;
-            pointer-events: none;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 100;
+            display: none;
             align-items: center;
+            justify-content: center;
         }
-        .toast {
-            padding: 13px 22px;
-            border-radius: 14px;
+        .result-overlay.show { display: flex; }
+        .result-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            min-width: 280px;
+        }
+        .result-amount {
+            font-size: 36px;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+        .result-amount.win { color: var(--green); }
+        .result-amount.lose { color: var(--red); }
+        .result-balance {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 20px;
+        }
+        .result-close {
+            padding: 12px 40px;
+            background: var(--gold);
+            border: none;
+            border-radius: 12px;
+            color: #000;
             font-weight: 700;
-            font-size: 15px;
-            letter-spacing: -0.3px;
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            animation: toastIn 0.4s cubic-bezier(0.16, 1, 0.3, 1), toastOut 0.3s ease 2s forwards;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            cursor: pointer;
         }
-        @keyframes toastIn {
-            from { opacity: 0; transform: translateY(-24px) scale(0.9); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-        @keyframes toastOut {
-            from { opacity: 1; transform: translateY(0) scale(1); }
-            to { opacity: 0; transform: translateY(-16px) scale(0.9); }
-        }
-        .toast.win {
-            background: rgba(10,10,20,0.95);
-            border: 1px solid rgba(45,212,168,0.35);
-            color: var(--green);
-        }
-        .toast.lose {
-            background: rgba(10,10,20,0.95);
-            border: 1px solid rgba(244,80,80,0.35);
-            color: var(--red);
-        }
-        .toast-icon { width: 18px; height: 18px; flex-shrink: 0; }
 
         @media (max-width: 380px) {
-            .wheel-frame { width: 280px; height: 280px; }
-            canvas#wheelCanvas { width: 280px; height: 280px; }
+            .wheel-frame { width: 260px; height: 260px; }
+            canvas#wheelCanvas { width: 260px; height: 260px; }
             .wheel-hub { width: 64px; height: 64px; }
             .hub-chance { font-size: 21px; }
             .bet-input { font-size: 18px; padding: 14px 44px 14px 16px; }
-            .chance-chip { padding: 12px 4px; }
-            .chip-value { font-size: 15px; }
         }
     </style>
 </head>
 <body>
-
-    <div class="toast-container" id="toastContainer"></div>
 
     <!-- Header -->
     <header class="header">
@@ -520,7 +452,7 @@
         <div class="wheel-frame" id="wheelFrame">
             <div class="wheel-aura" id="wheelAura"></div>
             <div class="wheel-ring"></div>
-            <canvas id="wheelCanvas" width="640" height="640"></canvas>
+            <canvas id="wheelCanvas" width="600" height="600"></canvas>
             <div class="wheel-pointer" id="wheelPointer">
                 <svg viewBox="0 0 24 16">
                     <polygon points="12,16 0,0 24,0" fill="#ffffff"/>
@@ -528,7 +460,7 @@
             </div>
             <div class="wheel-hub">
                 <span class="hub-chance" id="hubChance">50%</span>
-                <span class="hub-label">шанс</span>
+                <span class="hub-label">chance</span>
             </div>
         </div>
     </section>
@@ -537,22 +469,22 @@
     <div class="chance-row" id="chanceRow">
         <div class="chance-chip" data-chance="10">
             <div class="chip-value">10%</div>
-            <div class="chip-mult">×9.50</div>
+            <div class="chip-mult">x9.50</div>
             <div class="chip-tag">HOT</div>
         </div>
         <div class="chance-chip" data-chance="35">
             <div class="chip-value">35%</div>
-            <div class="chip-mult">×2.80</div>
+            <div class="chip-mult">x2.80</div>
             <div class="chip-tag">MID</div>
         </div>
         <div class="chance-chip active" data-chance="50">
             <div class="chip-value">50%</div>
-            <div class="chip-mult">×1.95</div>
+            <div class="chip-mult">x1.95</div>
             <div class="chip-tag">BEST</div>
         </div>
         <div class="chance-chip" data-chance="75">
             <div class="chip-value">75%</div>
-            <div class="chip-mult">×1.30</div>
+            <div class="chip-mult">x1.30</div>
             <div class="chip-tag">SAFE</div>
         </div>
     </div>
@@ -562,10 +494,10 @@
         <div class="bet-row">
             <div class="bet-input-wrap">
                 <input type="text" class="bet-input" id="betInput" placeholder="0" inputmode="decimal">
-                <span class="bet-currency">₽</span>
+                <span class="bet-currency">RUB</span>
             </div>
-            <button class="quick-btn" onclick="quickBet(0.5)">½</button>
-            <button class="quick-btn" onclick="quickBet(0.25)">¼</button>
+            <button class="quick-btn" onclick="quickBet(0.5)">1/2</button>
+            <button class="quick-btn" onclick="quickBet(0.25)">1/4</button>
             <button class="quick-btn" onclick="quickBet(1)">ALL</button>
         </div>
     </div>
@@ -580,45 +512,56 @@
                         <polygon points="5,3 19,12 5,21"/>
                     </svg>
                 </span>
-                <span class="btn-text">ИГРАТЬ</span>
+                <span class="btn-text">PLAY</span>
             </div>
             <div class="play-spinner"></div>
         </button>
+    </div>
+
+    <!-- Result overlay -->
+    <div class="result-overlay" id="resultOverlay">
+        <div class="result-card">
+            <div id="resultTitle" style="font-size:18px;color:var(--text-secondary);margin-bottom:8px;"></div>
+            <div class="result-amount" id="resultAmount"></div>
+            <div class="result-balance" id="resultBalance"></div>
+            <button class="result-close" onclick="closeResult()">OK</button>
+        </div>
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
-        tg.setHeaderColor('#050508');
-        tg.setBackgroundColor('#050508');
 
+        // Состояние
         let balance = 0;
         let selectedChance = 50;
         const multipliers = { 10: 9.50, 35: 2.80, 50: 1.95, 75: 1.30 };
         let isSpinning = false;
 
-        // ──────── CANVAS WHEEL ────────
+        // Загружаем баланс из Telegram Cloud Storage (если есть)
+        const stored = tg.CloudStorage.getItem('balance');
+        if (stored) balance = parseFloat(stored);
+
+        // Canvas
         const canvas = document.getElementById('wheelCanvas');
         const ctx = canvas.getContext('2d');
-        const size = 640;
+        const size = 600;
         const cx = size / 2;
         const cy = size / 2;
         const outerR = 290;
         const totalSegments = 360;
         let rotation = 0;
 
-        // Segment colors -- deep, elegant, no harsh contrast
         const winBase = '#0d2218';
-        const winAlt  = '#10291d';
+        const winAlt = '#10291d';
         const loseBase = '#180e0e';
-        const loseAlt  = '#1c1212';
+        const loseAlt = '#1c1212';
 
-        function drawWheel(highlightType = null, intensity = 0) {
+        function drawWheel(highlightType, intensity) {
             ctx.clearRect(0, 0, size, size);
             const slice = (2 * Math.PI) / totalSegments;
 
-            // ── Segments ──
             for (let i = 0; i < totalSegments; i++) {
                 const start = i * slice + rotation;
                 const end = start + slice;
@@ -632,27 +575,23 @@
                 ctx.closePath();
 
                 if (highlightType === 'win' && isWin) {
-                    ctx.fillStyle = `rgba(45,212,168,${0.25 * intensity})`;
+                    ctx.fillStyle = `rgba(45,212,168,${0.25 * (intensity || 0)})`;
                 } else if (highlightType === 'lose' && !isWin) {
-                    ctx.fillStyle = `rgba(244,80,80,${0.25 * intensity})`;
+                    ctx.fillStyle = `rgba(244,80,80,${0.25 * (intensity || 0)})`;
                 } else if (isWin) {
                     ctx.fillStyle = i % 2 === 0 ? winBase : winAlt;
                 } else {
                     ctx.fillStyle = i % 2 === 0 ? loseBase : loseAlt;
                 }
-
                 ctx.fill();
             }
 
-            // ── Divider line (clean, thin, bright) ──
+            // Divider line
             const divAngle = rotation;
             ctx.save();
             ctx.beginPath();
             ctx.moveTo(cx, cy);
-            ctx.lineTo(
-                cx + outerR * Math.cos(divAngle),
-                cy + outerR * Math.sin(divAngle)
-            );
+            ctx.lineTo(cx + outerR * Math.cos(divAngle), cy + outerR * Math.sin(divAngle));
             ctx.strokeStyle = 'rgba(255,255,255,0.7)';
             ctx.lineWidth = 1.8;
             ctx.shadowColor = 'rgba(255,255,255,0.5)';
@@ -660,7 +599,7 @@
             ctx.stroke();
             ctx.restore();
 
-            // ── Tick marks on outer edge ──
+            // Tick marks
             for (let i = 0; i < 72; i++) {
                 const a = (i / 72) * 2 * Math.PI + rotation;
                 const len = i % 6 === 0 ? 12 : 5;
@@ -668,14 +607,12 @@
                 ctx.beginPath();
                 ctx.moveTo(cx + r1 * Math.cos(a), cy + r1 * Math.sin(a));
                 ctx.lineTo(cx + outerR * Math.cos(a), cy + outerR * Math.sin(a));
-                ctx.strokeStyle = i % 6 === 0
-                    ? 'rgba(255,255,255,0.12)'
-                    : 'rgba(255,255,255,0.05)';
+                ctx.strokeStyle = i % 6 === 0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)';
                 ctx.lineWidth = i % 6 === 0 ? 1.2 : 0.6;
                 ctx.stroke();
             }
 
-            // ── Outer border ring ──
+            // Outer border
             ctx.beginPath();
             ctx.arc(cx, cy, outerR, 0, 2 * Math.PI);
             ctx.strokeStyle = 'rgba(255,255,255,0.08)';
@@ -685,10 +622,8 @@
 
         drawWheel();
 
-        // ──────── CHANCE ────────
+        // Chance selection
         const chips = document.querySelectorAll('.chance-chip');
-        const hubChance = document.getElementById('hubChance');
-
         document.getElementById('chanceRow').addEventListener('click', (e) => {
             if (isSpinning) return;
             const chip = e.target.closest('.chance-chip');
@@ -696,17 +631,17 @@
             chips.forEach(c => c.classList.remove('active'));
             chip.classList.add('active');
             selectedChance = Number(chip.dataset.chance);
-            hubChance.textContent = selectedChance + '%';
+            document.getElementById('hubChance').textContent = selectedChance + '%';
             drawWheel();
         });
 
-        // ──────── BET ────────
+        // Bet input
         const betInput = document.getElementById('betInput');
         betInput.addEventListener('input', function() {
             let v = this.value.replace(/[^0-9.]/g, '');
             if ((v.match(/\./g) || []).length > 1) v = v.slice(0, v.lastIndexOf('.'));
             const p = v.split('.');
-            if (p[1]?.length > 2) v = p[0] + '.' + p[1].slice(0, 2);
+            if (p[1] && p[1].length > 2) v = p[0] + '.' + p[1].slice(0, 2);
             this.value = v;
         });
 
@@ -716,29 +651,32 @@
             betInput.focus();
         }
 
+        // Profile
         function openProfile() {
             tg.sendData(JSON.stringify({ action: 'profile' }));
         }
 
-        // ──────── TOAST ────────
-        function showToast(msg, type) {
-            const c = document.getElementById('toastContainer');
-            const t = document.createElement('div');
-            t.className = 'toast ' + type;
-            const icon = document.createElement('span');
-            icon.className = 'toast-icon';
-            icon.innerHTML = type === 'win'
-                ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20,6 9,17 4,12"/></svg>'
-                : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
-            const txt = document.createElement('span');
-            txt.textContent = msg;
-            t.appendChild(icon);
-            t.appendChild(txt);
-            c.appendChild(t);
-            setTimeout(() => t.remove(), 2500);
+        // Balance
+        function updateBalanceDisplay() {
+            document.getElementById('balanceMini').textContent = balance.toFixed(2);
+            tg.CloudStorage.setItem('balance', balance.toString());
         }
 
-        // ──────── GLOW ────────
+        // Result overlay
+        function showResult(won, amount, newBalance) {
+            document.getElementById('resultTitle').textContent = won ? 'YOU WIN' : 'YOU LOSE';
+            const amtEl = document.getElementById('resultAmount');
+            amtEl.textContent = (won ? '+' : '-') + amount.toFixed(2) + ' RUB';
+            amtEl.className = 'result-amount ' + (won ? 'win' : 'lose');
+            document.getElementById('resultBalance').textContent = 'Balance: ' + newBalance.toFixed(2) + ' RUB';
+            document.getElementById('resultOverlay').classList.add('show');
+        }
+
+        function closeResult() {
+            document.getElementById('resultOverlay').classList.remove('show');
+        }
+
+        // Wheel effects
         function setResultUI(type) {
             const aura = document.getElementById('wheelAura');
             const ptr = document.getElementById('wheelPointer');
@@ -750,8 +688,8 @@
             }, 1000);
         }
 
-        // ──────── SPIN ────────
-        function spinWheel(won, cb) {
+        // Spin animation
+        function spinWheel(won, callback) {
             isSpinning = true;
             const speed = 10 + Math.random() * 22;
             const duration = 2000 + Math.random() * 1400;
@@ -778,22 +716,22 @@
                     drawWheel(won ? 'win' : 'lose', 1);
                     setResultUI(won ? 'win' : 'lose');
                     isSpinning = false;
-                    cb();
+                    if (callback) callback();
                 }
             })(t0);
         }
 
-        // ──────── PLAY ────────
+        // Play
         function play() {
             if (isSpinning) return;
             const bet = parseFloat(betInput.value.trim());
             if (!bet || bet <= 0 || isNaN(bet)) {
-                showToast('Введите сумму ставки', 'lose');
-                return shake(betInput);
+                tg.showAlert('Enter bet amount');
+                return;
             }
             if (bet > balance) {
-                showToast('Недостаточно средств', 'lose');
-                return shake(document.getElementById('balancePill'));
+                tg.showAlert('Insufficient funds');
+                return;
             }
 
             const btn = document.getElementById('playBtn');
@@ -806,53 +744,42 @@
             spinWheel(won, () => {
                 const delta = won ? bet * mult : -bet;
                 balance += delta;
-                updateBalance();
-                pulseBalance(delta);
-                const amt = won ? (bet * mult).toFixed(2) : bet.toFixed(2);
-                showToast((won ? '+' : '−') + amt + ' ₽', won ? 'win' : 'lose');
+                updateBalanceDisplay();
+
+                const displayAmt = won ? bet * mult : bet;
+
+                // Показываем результат
+                showResult(won, displayAmt, balance);
+
                 btn.classList.remove('loading');
                 btn.disabled = false;
                 betInput.value = '';
                 betInput.blur();
+
+                // Отправляем данные боту
                 tg.sendData(JSON.stringify({
                     action: 'play',
-                    bet, chance: selectedChance, won, multiplier: mult
+                    bet: bet,
+                    chance: selectedChance,
+                    won: won,
+                    multiplier: mult
                 }));
             });
         }
 
-        function shake(el) {
-            el.style.animation = 'none'; el.offsetHeight;
-            el.style.animation = 'shake 0.4s ease';
-            setTimeout(() => el.style.animation = '', 400);
-        }
+        // Внешние методы для бота
+        window.setBalance = function(amount) {
+            balance = amount;
+            updateBalanceDisplay();
+        };
 
-        (function() {
-            const s = document.createElement('style');
-            s.textContent = '@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}';
-            document.head.appendChild(s);
-        })();
-
-        function pulseBalance(d) {
-            const p = document.getElementById('balancePill');
-            p.style.transform = d > 0 ? 'scale(1.07)' : 'scale(0.94)';
-            p.style.borderColor = d > 0 ? 'var(--green)' : 'var(--red)';
-            setTimeout(() => { p.style.transform = ''; p.style.borderColor = ''; }, 350);
-        }
-
-        function updateBalance() {
-            document.getElementById('balanceMini').textContent = balance.toFixed(2);
-        }
-
-        window.updateBalance = v => { balance = v; updateBalance(); };
-        window.setBalance = v => { balance = v; updateBalance(); };
-        updateBalance();
-
-        // Idle slow drift
+        // Idle animation
         (function idle() {
             if (!isSpinning) { rotation += 0.00025; drawWheel(); }
             requestAnimationFrame(idle);
         })();
+
+        updateBalanceDisplay();
     </script>
 </body>
 </html>
