@@ -2,264 +2,380 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>UPMoney</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Upgrader Mini App</title>
+    <!-- Подключаем скрипт Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root {
-            --bg: #050508; --card: #0a0a14; --border: #161628;
-            --gold: #e8b830; --text: #f0f0f5; --text-secondary: #7a7a90;
-            --green: #2dd4a8; --red: #f45050;
+        /* Цветовая палитра и базовые настройки */
+        :root { 
+            --bg: #0f0f13; 
+            --panel: #1c1c24; 
+            --accent: #007aff; 
+            --win: #32d74b; 
+            --lose: #ff453a; 
+            --text: #ffffff; 
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body {
-            background:var(--bg); font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;
-            color:var(--text); min-height:100vh; display:flex; flex-direction:column;
-            align-items:center; padding:20px; gap:16px;
-            -webkit-tap-highlight-color:transparent; user-select:none;
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        
+        body { 
+            background: var(--bg); 
+            color: var(--text); 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            overflow: hidden; /* Запрещаем скролл страницы */
         }
-        .header { width:100%; max-width:400px; display:flex; justify-content:space-between; align-items:center; }
-        .logo { font-size:20px; font-weight:800; }
-        .logo-up { color:var(--gold); }
-        .header-right { display:flex; align-items:center; gap:10px; }
-        .balance-pill { background:var(--card); border:1px solid var(--border); border-radius:30px; padding:8px 16px; font-size:14px; font-weight:600; display:flex; gap:6px; align-items:center; }
-        .balance-dot { width:6px; height:6px; background:var(--green); border-radius:50%; }
-        .profile-btn { width:38px; height:38px; border-radius:50%; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; }
-        .profile-btn svg { width:18px; height:18px; stroke:var(--text-secondary); }
+        
+        /* Шапка с профилем */
+        .header { 
+            background: var(--panel); 
+            padding: 15px 20px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            border-bottom: 1px solid rgba(255,255,255,0.05); 
+        }
+        .user-info { font-size: 16px; font-weight: 500; }
+        .balance-container { cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .balance { font-size: 20px; font-weight: 700; color: #ffd60a; }
+        .add-btn { background: rgba(255, 214, 10, 0.2); color: #ffd60a; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
+        
+        .container { padding: 20px; text-align: center; }
+        
+        /* Колесо апгрейдов */
+        .wheel-box { 
+            position: relative; 
+            width: 240px; 
+            height: 240px; 
+            margin: 30px auto; 
+            border-radius: 50%; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.5); 
+        }
+        .wheel { 
+            width: 100%; 
+            height: 100%; 
+            border-radius: 50%; 
+            background: conic-gradient(var(--win) 0% 50%, var(--panel) 50% 100%); 
+            transition: transform 4s cubic-bezier(0.15, 0.9, 0.25, 1); 
+            border: 4px solid #2c2c35; 
+        }
+        .pointer { 
+            position: absolute; 
+            top: -15px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 0; 
+            height: 0; 
+            border-left: 15px solid transparent; 
+            border-right: 15px solid transparent; 
+            border-top: 25px solid #ffffff; 
+            z-index: 10; 
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); 
+        }
+        .center-dot { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 40px; 
+            height: 40px; 
+            background: #2c2c35; 
+            border-radius: 50%; 
+            border: 3px solid #ffffff; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: #888;
+        }
 
-        .wheel-frame { position:relative; width:300px; height:300px; }
-        .wheel-aura { position:absolute; inset:-30px; border-radius:50%; pointer-events:none; opacity:0; transition:opacity 0.5s; }
-        .wheel-aura.win { opacity:1; background:radial-gradient(circle,rgba(45,212,168,0.4) 0%,transparent 70%); }
-        .wheel-aura.lose { opacity:1; background:radial-gradient(circle,rgba(244,80,80,0.4) 0%,transparent 70%); }
-        canvas#wc { position:relative; z-index:2; width:300px; height:300px; display:block; }
-        .wheel-pointer { position:absolute; top:-12px; left:50%; transform:translateX(-50%); z-index:10; pointer-events:none; }
-        .wheel-pointer svg { width:24px; height:16px; }
-        .wheel-hub { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:5; width:72px; height:72px; border-radius:50%; background:var(--bg); border:2px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; align-items:center; justify-content:center; }
-        .hub-chance { font-size:24px; font-weight:800; }
+        /* Панель управления */
+        .controls { background: var(--panel); padding: 20px; border-radius: 20px; margin-top: 20px; }
+        .controls-title { margin-bottom: 15px; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+        
+        .chances { display: flex; justify-content: space-between; margin-bottom: 20px; }
+        .chance-btn { 
+            flex: 1; 
+            background: rgba(255,255,255,0.05); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: var(--text); 
+            padding: 12px 0; 
+            margin: 0 5px; 
+            border-radius: 12px; 
+            font-weight: 600; 
+            font-size: 16px;
+            cursor: pointer; 
+            transition: 0.2s; 
+        }
+        .chance-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); }
+        
+        input { 
+            width: 100%; 
+            background: rgba(0,0,0,0.3); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            color: #ffffff; 
+            padding: 15px; 
+            border-radius: 12px; 
+            font-size: 16px; 
+            text-align: center; 
+            margin-bottom: 15px; 
+            outline: none;
+        }
+        input:focus { border-color: var(--accent); }
+        
+        .play-btn { 
+            width: 100%; 
+            background: linear-gradient(135deg, #007aff, #0056b3); 
+            border: none; 
+            color: white; 
+            padding: 18px; 
+            border-radius: 12px; 
+            font-size: 18px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            transition: 0.2s;
+        }
+        .play-btn:active { transform: scale(0.98); }
+        .play-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        .chance-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:100%; max-width:400px; }
-        .chance-chip { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 4px; text-align:center; cursor:pointer; }
-        .chance-chip.active { border-color:var(--gold); }
-        .chip-value { font-size:18px; font-weight:700; }
-        .chance-chip.active .chip-value { color:var(--gold); }
-        .chip-mult { font-size:11px; color:var(--text-secondary); }
-
-        .bet-row { display:flex; gap:8px; width:100%; max-width:400px; }
-        .bet-input { flex:1; padding:14px; background:var(--card); border:1px solid var(--border); border-radius:14px; color:var(--text); font-size:18px; outline:none; }
-        .quick-btn { background:var(--card); border:1px solid var(--border); border-radius:14px; color:var(--text-secondary); padding:0 16px; cursor:pointer; }
-
-        .btn-row { display:flex; gap:8px; width:100%; max-width:400px; }
-        .play-btn { flex:1; padding:16px; background:linear-gradient(135deg,var(--gold),#d4a520); border:none; border-radius:14px; color:#000; font-size:17px; font-weight:700; cursor:pointer; }
-        .upgrade-btn { padding:16px; background:var(--card); border:1px solid var(--border); border-radius:14px; color:var(--text); cursor:pointer; }
-        .play-btn:disabled, .upgrade-btn:disabled { opacity:0.4; }
-
-        .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:100; display:none; align-items:center; justify-content:center; }
-        .overlay.show { display:flex; }
-        .card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:25px; min-width:280px; text-align:center; }
-        .card h3 { color:var(--gold); margin-bottom:12px; }
-        .card p { margin:4px 0; font-size:14px; color:var(--text-secondary); }
-        .card p span { color:var(--text); font-weight:600; }
-        .amount { font-size:32px; font-weight:800; margin:8px 0; }
-        .amount.win { color:var(--green); } .amount.lose { color:var(--red); }
-        .close-btn { padding:10px 30px; background:var(--gold); border:none; border-radius:10px; color:#000; font-weight:700; cursor:pointer; margin-top:12px; }
+        /* Модальное окно пополнения */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.85); 
+            z-index: 100; 
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(5px);
+        }
+        .modal-content { background: var(--panel); padding: 30px 25px; border-radius: 24px; width: 90%; max-width: 350px; text-align: center; }
+        .modal h3 { margin-bottom: 10px; font-size: 20px; }
+        .modal p { margin: 15px 0; font-size: 14px; color: #aaa; line-height: 1.5; }
+        .modal-phone { display: inline-block; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 10px; color: #fff; font-size: 20px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; }
+        
+        .modal button { width: 100%; border: none; color: white; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 10px; cursor: pointer; }
+        .btn-success { background: var(--win); }
+        .btn-cancel { background: rgba(255,255,255,0.1); color: #ccc !important; }
     </style>
 </head>
 <body>
 
-<header class="header">
-    <div class="logo"><span class="logo-up">UP</span>MONEY</div>
-    <div class="header-right">
-        <div class="balance-pill"><div class="balance-dot"></div><span id="bal">0.00</span></div>
-        <div class="profile-btn" onclick="showProfile()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg></div>
+    <!-- Шапка профиля -->
+    <div class="header">
+        <div class="user-info">👤 <span id="username">Загрузка...</span></div>
+        <div class="balance-container" onclick="openDepositModal()">
+            <span class="balance" id="balance">0</span> <span style="color: #ffd60a; font-weight: bold;">₽</span>
+            <div class="add-btn">+</div>
+        </div>
     </div>
-</header>
 
-<div class="wheel-frame">
-    <div class="wheel-aura" id="aura"></div>
-    <canvas id="wc" width="600" height="600"></canvas>
-    <div class="wheel-pointer"><svg viewBox="0 0 24 16"><polygon points="12,16 0,0 24,0" fill="#fff"/></svg></div>
-    <div class="wheel-hub"><span class="hub-chance" id="hub">50%</span></div>
-</div>
+    <div class="container">
+        <!-- Блок с колесом -->
+        <div class="wheel-box">
+            <div class="pointer"></div>
+            <div class="wheel" id="wheel"></div>
+            <div class="center-dot">UP</div>
+        </div>
 
-<div class="chance-row" id="chanceRow">
-    <div class="chance-chip active" data-c="10"><div class="chip-value">10%</div><div class="chip-mult">x9.50</div></div>
-    <div class="chance-chip" data-c="35"><div class="chip-value">35%</div><div class="chip-mult">x2.80</div></div>
-    <div class="chance-chip" data-c="50"><div class="chip-value">50%</div><div class="chip-mult">x1.95</div></div>
-    <div class="chance-chip" data-c="75"><div class="chip-value">75%</div><div class="chip-mult">x1.30</div></div>
-</div>
-
-<div class="bet-row">
-    <input type="text" class="bet-input" id="bet" placeholder="0" inputmode="decimal">
-    <button class="quick-btn" onclick="qb(0.5)">1/2</button>
-    <button class="quick-btn" onclick="qb(1)">ALL</button>
-</div>
-
-<div class="btn-row">
-    <button class="play-btn" id="playBtn" onclick="play()">PLAY</button>
-    <button class="upgrade-btn" id="upgBtn" onclick="upgrade()">UPGRADE</button>
-</div>
-
-<div class="overlay" id="resOv">
-    <div class="card">
-        <div id="resT" style="font-size:18px;color:var(--text-secondary);"></div>
-        <div class="amount" id="resA"></div>
-        <div style="font-size:14px;color:var(--text-secondary);" id="resB"></div>
-        <button class="close-btn" onclick="document.getElementById('resOv').classList.remove('show')">OK</button>
+        <!-- Панель управления -->
+        <div class="controls">
+            <div class="controls-title">Шанс успеха</div>
+            <div class="chances" id="chanceButtons">
+                <button class="chance-btn" onclick="selectChance(10)">10%</button>
+                <button class="chance-btn" onclick="selectChance(30)">30%</button>
+                <button class="chance-btn active" onclick="selectChance(50)">50%</button>
+                <button class="chance-btn" onclick="selectChance(75)">75%</button>
+            </div>
+            
+            <input type="number" id="betAmount" placeholder="Сумма ставки (₽)" value="100">
+            <button class="play-btn" id="playBtn" onclick="play()">Апгрейд</button>
+        </div>
     </div>
-</div>
 
-<div class="overlay" id="profOv">
-    <div class="card" id="profC"></div>
-</div>
+    <!-- Модальное окно пополнения -->
+    <div id="depositModal" class="modal">
+        <div class="modal-content">
+            <h3>Пополнение баланса</h3>
+            <p>
+                Переведите нужную сумму по номеру телефона (СБП):<br>
+                <span class="modal-phone">+79069092500</span><br>
+                Затем введите отправленную сумму ниже и подтвердите.
+            </p>
+            <input type="number" id="depositAmount" placeholder="Сумма перевода (₽)">
+            <button class="btn-success" onclick="requestDeposit()">Я оплатил</button>
+            <button class="btn-cancel" onclick="closeDepositModal()">Отмена</button>
+        </div>
+    </div>
 
-<script>
-const tg = window.Telegram.WebApp; tg.expand(); tg.ready();
+    <!-- Логика приложения -->
+    <script>
+        // Инициализация Telegram
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
 
-let balance = 0, chance = 50, level = 1, mult = 1, upgCost = 100;
-const muls = {10:9.5, 35:2.8, 50:1.95, 75:1.3};
-let spinning = false, uid = null;
+        // Данные пользователя
+        const userId = tg.initDataUnsafe?.user?.id || 123456789; // Тестовый ID для браузера
+        const username = tg.initDataUnsafe?.user?.username || tg.initDataUnsafe?.user?.first_name || 'Гость';
+        
+        document.getElementById('username').innerText = username;
+        
+        let currentChance = 50;
+        let isSpinning = false;
+        let currentRotation = 0;
 
-// Получаем user_id через initDataUnsafe
-try { uid = tg.initDataUnsafe.user?.id || 0; } catch(e) {}
-
-const cv = document.getElementById('wc'), cx = cv.getContext('2d');
-const S = 600, R = 290; let rot = 0;
-
-function draw(hl, int) {
-    cx.clearRect(0,0,S,S); const sl = (2*Math.PI)/360;
-    for (let i=0; i<360; i++) {
-        const st = i*sl+rot, en = st+sl;
-        const n = ((st%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
-        const w = n < (chance/100)*2*Math.PI;
-        cx.beginPath(); cx.moveTo(300,300); cx.arc(300,300,R,st,en); cx.closePath();
-        if (hl==='win' && w) cx.fillStyle = `rgba(45,212,168,${.25*(int||0)})`;
-        else if (hl==='lose' && !w) cx.fillStyle = `rgba(244,80,80,${.25*(int||0)})`;
-        else if (w) cx.fillStyle = i%2?'#0d2218':'#10291d';
-        else cx.fillStyle = i%2?'#180e0e':'#1c1212';
-        cx.fill();
-    }
-    cx.beginPath(); cx.moveTo(300,300); cx.lineTo(300+R*Math.cos(rot), 300+R*Math.sin(rot));
-    cx.strokeStyle='rgba(255,255,255,0.7)'; cx.lineWidth=2; cx.stroke();
-    cx.beginPath(); cx.arc(300,300,R,0,2*Math.PI); cx.strokeStyle='rgba(255,255,255,0.08)'; cx.lineWidth=2; cx.stroke();
-}
-draw();
-
-document.getElementById('chanceRow').onclick = e => {
-    if (spinning) return;
-    const c = e.target.closest('.chance-chip'); if (!c) return;
-    document.querySelectorAll('.chance-chip').forEach(x => x.classList.remove('active'));
-    c.classList.add('active'); chance = +c.dataset.c;
-    document.getElementById('hub').textContent = chance+'%'; draw();
-};
-
-document.getElementById('bet').oninput = function() {
-    this.value = this.value.replace(/[^0-9.]/g,'');
-    if ((this.value.match(/\./g)||[]).length > 1) this.value = this.value.slice(0,-1);
-};
-
-function qb(f) { if (balance>0) document.getElementById('bet').value = (balance*f).toFixed(2); }
-
-function upd() {
-    document.getElementById('bal').textContent = balance.toFixed(2);
-    document.getElementById('upgBtn').textContent = `UP x${mult.toFixed(1)} | ${upgCost.toFixed(0)}R`;
-}
-
-function spin(won, cb) {
-    spinning = true;
-    const sp = 10+Math.random()*22, dur = 2000+Math.random()*1400;
-    const sR = rot, t0 = performance.now(); let hl = false, int = 0;
-    (function a(now) {
-        const p = Math.min((now-t0)/dur, 1);
-        rot = sR + (sp*dur/1000)*(1-Math.pow(1-p,4));
-        if (p>.78 && !hl) hl = true;
-        int = hl ? Math.min(1,(p-.78)/.22) : 0;
-        draw(hl?(won?'win':'lose'):null, int);
-        if (p<1) requestAnimationFrame(a);
-        else { draw(won?'win':'lose',1); setAura(won); spinning = false; if (cb) cb(); }
-    })(t0);
-}
-
-function setAura(w) {
-    const a = document.getElementById('aura'); a.className = 'wheel-aura '+(w?'win':'lose');
-    setTimeout(() => a.className = 'wheel-aura', 1000);
-}
-
-function play() {
-    if (spinning) return;
-    const bet = parseFloat(document.getElementById('bet').value);
-    if (!bet || bet<=0) return tg.showAlert('Enter bet');
-    if (bet > balance) return tg.showAlert('No funds');
-    document.getElementById('playBtn').disabled = true;
-
-    const won = Math.random()*100 <= chance;
-    const mm = muls[chance];
-    spin(won, () => {
-        const winAmt = won ? bet*mm*mult : 0;
-        balance = won ? balance + winAmt : balance - bet;
-        upd();
-        document.getElementById('resT').textContent = won ? 'WIN' : 'LOSE';
-        const am = document.getElementById('resA');
-        am.textContent = (won?'+':'')+(won?winAmt:bet).toFixed(2)+' RUB';
-        am.className = 'amount '+(won?'win':'lose');
-        document.getElementById('resB').textContent = 'Balance: '+balance.toFixed(2);
-        document.getElementById('resOv').classList.add('show');
-        document.getElementById('playBtn').disabled = false;
-        document.getElementById('bet').value = '';
-
-        // Синхронизация с ботом
-        tg.sendData(JSON.stringify({action:'play', bet, chance, won, multiplier:mm}));
-    });
-}
-
-function upgrade() {
-    if (balance >= upgCost) {
-        balance -= upgCost; level++; mult *= 1.5; upgCost *= 2;
-        upd(); tg.showAlert('Level '+level+' | x'+mult.toFixed(1));
-        tg.sendData(JSON.stringify({action:'do_upgrade'}));
-    } else tg.showAlert('Insufficient funds');
-}
-
-function showProfile() {
-    tg.sendData(JSON.stringify({action:'get_profile'}));
-    // Ответ придёт в следующем сообщении, парсим через history
-    setTimeout(loadProfile, 500);
-}
-
-function loadProfile() {
-    // Запрашиваем через sendData и ждём ответ вручную
-    fetch(`https://api.telegram.org/bot8803677733:AAFWQNmhDX1ZTg8bjvYuX7duZg6YVKs1Xa4/getUpdates?offset=-1`)
-    .then(r => r.json()).then(d => {
-        if (d.result?.length) {
-            const msg = d.result[0].message;
-            if (msg?.text?.startsWith('{')) {
-                const data = JSON.parse(msg.text);
-                if (data.email) showProfileCard(data);
+        // Загрузка баланса при входе
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/user/' + userId);
+                const data = await res.json();
+                document.getElementById('balance').innerText = data.balance;
+            } catch (e) { 
+                console.error("Не удалось загрузить профиль", e); 
             }
         }
-    }).catch(() => {});
-}
+        loadProfile();
 
-function showProfileCard(d) {
-    document.getElementById('profC').innerHTML = `
-        <h3>PROFILE</h3>
-        <p>Email: <span>${d.email}</span></p>
-        <p>Balance: <span>${d.balance.toFixed(2)} RUB</span></p>
-        <p>Level: <span>${d.level} | x${d.multiplier.toFixed(1)}</span></p>
-        <p>Games: <span>${d.games_played}</span></p>
-        <p>Winrate: <span>${d.winrate}%</span></p>
-        <p>Upgrade: <span>${d.upgrade_cost.toFixed(0)} RUB</span></p>
-        <button class="close-btn" onclick="document.getElementById('profOv').classList.remove('show')">CLOSE</button>
-    `;
-    document.getElementById('profOv').classList.add('show');
-}
+        // Управление модальным окном
+        function openDepositModal() {
+            if (isSpinning) return;
+            document.getElementById('depositModal').style.display = 'flex';
+        }
+        function closeDepositModal() {
+            document.getElementById('depositModal').style.display = 'none';
+            document.getElementById('depositAmount').value = '';
+        }
 
-// Idle animation
-(function idle() { if (!spinning) { rot += .00025; draw(); } requestAnimationFrame(idle); })();
+        // Выбор шанса
+        function selectChance(chance) {
+            if (isSpinning) return;
+            currentChance = chance;
+            
+            // Обновляем активную кнопку
+            document.querySelectorAll('.chance-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Обновляем заливку колеса
+            const wheel = document.getElementById('wheel');
+            wheel.style.background = `conic-gradient(var(--win) 0% ${chance}%, var(--panel) ${chance}% 100%)`;
+            
+            // Вибрация при переключении
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.selectionChanged();
+            }
+        }
 
-// Загружаем начальный профиль
-setTimeout(() => tg.sendData(JSON.stringify({action:'get_profile'})), 1000);
+        // Логика вращения
+        async function play() {
+            if (isSpinning) return;
+            
+            const bet = Number(document.getElementById('betAmount').value);
+            if (bet <= 0) {
+                tg.showAlert('Пожалуйста, введите корректную ставку');
+                return;
+            }
 
-upd();
-</script>
+            isSpinning = true;
+            document.getElementById('playBtn').disabled = true;
+            document.getElementById('playBtn').innerText = 'Вращение...';
+
+            try {
+                // Запрос к FastAPI серверу
+                const res = await fetch('/api/spin', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, bet, chance: currentChance })
+                });
+                
+                const data = await res.json();
+
+                if (data.detail) { 
+                    tg.showAlert(data.detail);
+                    resetPlayButton();
+                    return;
+                }
+
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.impactOccurred('light');
+                }
+
+                const wheel = document.getElementById('wheel');
+                const spins = 5; 
+                
+                let stopDegree;
+                if (data.isWin) {
+                    stopDegree = Math.random() * (currentChance * 3.6);
+                } else {
+                    stopDegree = (currentChance * 3.6) + Math.random() * ((100 - currentChance) * 3.6);
+                }
+
+                if (stopDegree < 2) stopDegree = 2;
+                if (stopDegree > 358) stopDegree = 358;
+
+                const totalRotation = currentRotation + (spins * 360) + (360 - stopDegree) - (currentRotation % 360);
+                currentRotation = totalRotation;
+
+                wheel.style.transform = `rotate(${totalRotation}deg)`;
+
+                setTimeout(() => {
+                    if (tg.HapticFeedback) {
+                        tg.HapticFeedback.notificationOccurred(data.isWin ? 'success' : 'error');
+                    }
+                    
+                    document.getElementById('balance').innerText = data.newBalance;
+                    
+                    if (data.isWin) {
+                        tg.showAlert(`🎉 Успех! Вы выиграли ${data.winAmount} ₽ (x${data.multiplier})`);
+                    }
+                    
+                    resetPlayButton();
+                }, 4000);
+
+            } catch (e) {
+                tg.showAlert('Ошибка соединения с сервером');
+                resetPlayButton();
+            }
+        }
+
+        function resetPlayButton() {
+            isSpinning = false;
+            document.getElementById('playBtn').disabled = false;
+            document.getElementById('playBtn').innerText = 'Апгрейд';
+        }
+
+        // Пополнение
+        async function requestDeposit() {
+            const amount = Number(document.getElementById('depositAmount').value);
+            if (amount < 50) {
+                tg.showAlert('Минимальная сумма пополнения — 50 ₽');
+                return;
+            }
+
+            closeDepositModal();
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+
+            try {
+                await fetch('/api/deposit', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId, amount, username })
+                });
+                tg.showAlert('✅ Запрос отправлен! Ожидайте подтверждения администратором.');
+            } catch(e) {
+                tg.showAlert('Ошибка отправки запроса');
+            }
+        }
+
+        selectChance(50);
+    </script>
 </body>
 </html>
