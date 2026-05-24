@@ -8,365 +8,258 @@
     <style>
         :root {
             --bg: #050508; --card: #0a0a14; --border: #161628;
-            --gold: #e8b830; --gold-light: #f5d060;
-            --text: #f0f0f5; --text-secondary: #7a7a90;
+            --gold: #e8b830; --text: #f0f0f5; --text-secondary: #7a7a90;
             --green: #2dd4a8; --red: #f45050;
-            --green-glow: rgba(45,212,168,0.4); --red-glow: rgba(244,80,80,0.4);
         }
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             background:var(--bg); font-family:-apple-system,BlinkMacSystemFont,'Inter',sans-serif;
             color:var(--text); min-height:100vh; display:flex; flex-direction:column;
-            align-items:center; padding:20px 20px 40px; gap:20px;
-            -webkit-tap-highlight-color:transparent; user-select:none; overflow-x:hidden;
+            align-items:center; padding:20px; gap:16px;
+            -webkit-tap-highlight-color:transparent; user-select:none;
         }
         .header { width:100%; max-width:400px; display:flex; justify-content:space-between; align-items:center; }
-        .logo { font-size:20px; font-weight:800; letter-spacing:-0.4px; }
-        .logo-up { color:var(--gold); } .logo-money { color:var(--text); }
+        .logo { font-size:20px; font-weight:800; }
+        .logo-up { color:var(--gold); }
         .header-right { display:flex; align-items:center; gap:10px; }
-        .balance-pill {
-            background:var(--card); border:1px solid var(--border); border-radius:30px;
-            padding:8px 16px; display:flex; align-items:center; gap:8px;
-            font-size:14px; font-weight:600;
-        }
-        .balance-dot { width:6px; height:6px; background:var(--green); border-radius:50%; box-shadow:0 0 8px var(--green-glow); }
-        .profile-btn {
-            width:38px; height:38px; border-radius:50%; background:var(--card);
-            border:1px solid var(--border); display:flex; align-items:center;
-            justify-content:center; cursor:pointer; transition:all 0.25s;
-        }
-        .profile-btn:active { transform:scale(0.9); }
+        .balance-pill { background:var(--card); border:1px solid var(--border); border-radius:30px; padding:8px 16px; font-size:14px; font-weight:600; display:flex; gap:6px; align-items:center; }
+        .balance-dot { width:6px; height:6px; background:var(--green); border-radius:50%; }
+        .profile-btn { width:38px; height:38px; border-radius:50%; background:var(--card); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; }
         .profile-btn svg { width:18px; height:18px; stroke:var(--text-secondary); }
 
         .wheel-frame { position:relative; width:300px; height:300px; }
-        .wheel-aura { position:absolute; inset:-30px; border-radius:50%; pointer-events:none; z-index:0; opacity:0; transition:opacity 0.5s; }
-        .wheel-aura.win { opacity:1; background:radial-gradient(circle,var(--green-glow) 0%,transparent 70%); }
-        .wheel-aura.lose { opacity:1; background:radial-gradient(circle,var(--red-glow) 0%,transparent 70%); }
-        canvas#wheelCanvas { position:relative; z-index:2; width:300px; height:300px; display:block; }
-        .wheel-pointer { position:absolute; top:-12px; left:50%; transform:translateX(-50%); z-index:10; pointer-events:none; transition:filter 0.3s; }
-        .wheel-pointer svg { width:24px; height:16px; display:block; }
-        .wheel-pointer.win svg { filter:drop-shadow(0 0 10px var(--green-glow)); }
-        .wheel-pointer.lose svg { filter:drop-shadow(0 0 10px var(--red-glow)); }
-        .wheel-hub {
-            position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
-            z-index:5; pointer-events:none; width:72px; height:72px; border-radius:50%;
-            background:var(--bg); border:2px solid rgba(255,255,255,0.06);
-            display:flex; flex-direction:column; align-items:center; justify-content:center;
-            box-shadow:0 0 30px rgba(0,0,0,0.6);
-        }
-        .hub-chance { font-size:24px; font-weight:800; letter-spacing:-1px; color:var(--text); }
-        .hub-label { font-size:9px; text-transform:uppercase; letter-spacing:2px; color:var(--text-secondary); }
+        .wheel-aura { position:absolute; inset:-30px; border-radius:50%; pointer-events:none; opacity:0; transition:opacity 0.5s; }
+        .wheel-aura.win { opacity:1; background:radial-gradient(circle,rgba(45,212,168,0.4) 0%,transparent 70%); }
+        .wheel-aura.lose { opacity:1; background:radial-gradient(circle,rgba(244,80,80,0.4) 0%,transparent 70%); }
+        canvas#wc { position:relative; z-index:2; width:300px; height:300px; display:block; }
+        .wheel-pointer { position:absolute; top:-12px; left:50%; transform:translateX(-50%); z-index:10; pointer-events:none; }
+        .wheel-pointer svg { width:24px; height:16px; }
+        .wheel-hub { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:5; width:72px; height:72px; border-radius:50%; background:var(--bg); border:2px solid rgba(255,255,255,0.06); display:flex; flex-direction:column; align-items:center; justify-content:center; }
+        .hub-chance { font-size:24px; font-weight:800; }
 
         .chance-row { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; width:100%; max-width:400px; }
-        .chance-chip {
-            background:var(--card); border:1px solid var(--border); border-radius:14px;
-            padding:14px 4px; text-align:center; cursor:pointer; transition:all 0.3s;
-        }
-        .chance-chip:active { transform:scale(0.94); }
-        .chance-chip.active { border-color:var(--gold); background:rgba(232,184,48,0.06); }
-        .chip-value { font-size:18px; font-weight:700; color:var(--text); }
+        .chance-chip { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:14px 4px; text-align:center; cursor:pointer; }
+        .chance-chip.active { border-color:var(--gold); }
+        .chip-value { font-size:18px; font-weight:700; }
         .chance-chip.active .chip-value { color:var(--gold); }
-        .chip-mult { font-size:11px; font-weight:500; color:var(--text-secondary); margin-top:2px; }
+        .chip-mult { font-size:11px; color:var(--text-secondary); }
 
-        .bet-section { width:100%; max-width:400px; }
-        .bet-row { display:flex; gap:8px; }
-        .bet-input {
-            flex:1; padding:16px 20px; background:var(--card); border:1px solid var(--border);
-            border-radius:14px; color:var(--text); font-size:20px; font-weight:600; outline:none;
-        }
-        .bet-input:focus { border-color:var(--gold); }
-        .quick-btn {
-            background:var(--card); border:1px solid var(--border); border-radius:14px;
-            color:var(--text-secondary); font-size:13px; font-weight:600;
-            cursor:pointer; padding:0 16px; display:flex; align-items:center; min-width:46px; justify-content:center;
-        }
+        .bet-row { display:flex; gap:8px; width:100%; max-width:400px; }
+        .bet-input { flex:1; padding:14px; background:var(--card); border:1px solid var(--border); border-radius:14px; color:var(--text); font-size:18px; outline:none; }
+        .quick-btn { background:var(--card); border:1px solid var(--border); border-radius:14px; color:var(--text-secondary); padding:0 16px; cursor:pointer; }
 
         .btn-row { display:flex; gap:8px; width:100%; max-width:400px; }
-        .play-btn {
-            flex:1; padding:16px; background:linear-gradient(135deg,var(--gold),#d4a520);
-            border:none; border-radius:14px; color:#000; font-size:17px; font-weight:700; cursor:pointer;
-        }
-        .upgrade-btn {
-            padding:16px 20px; background:var(--card); border:1px solid var(--border);
-            border-radius:14px; color:var(--text); font-size:14px; font-weight:600; cursor:pointer;
-        }
-        .play-btn:disabled, .upgrade-btn:disabled { opacity:0.4; pointer-events:none; }
+        .play-btn { flex:1; padding:16px; background:linear-gradient(135deg,var(--gold),#d4a520); border:none; border-radius:14px; color:#000; font-size:17px; font-weight:700; cursor:pointer; }
+        .upgrade-btn { padding:16px; background:var(--card); border:1px solid var(--border); border-radius:14px; color:var(--text); cursor:pointer; }
+        .play-btn:disabled, .upgrade-btn:disabled { opacity:0.4; }
 
-        .result-overlay {
-            position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.7); z-index:100; display:none;
-            align-items:center; justify-content:center;
-        }
-        .result-overlay.show { display:flex; }
-        .result-card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:30px; text-align:center; min-width:280px; }
-        .result-amount { font-size:36px; font-weight:800; margin:10px 0; }
-        .result-amount.win { color:var(--green); } .result-amount.lose { color:var(--red); }
-        .result-close { padding:12px 40px; background:var(--gold); border:none; border-radius:12px; color:#000; font-weight:700; cursor:pointer; margin-top:15px; }
-
-        .profile-overlay {
-            position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.7); z-index:100; display:none;
-            align-items:center; justify-content:center;
-        }
-        .profile-overlay.show { display:flex; }
-        .profile-card {
-            background:var(--card); border:1px solid var(--border); border-radius:20px;
-            padding:25px; min-width:300px; max-width:90%;
-        }
-        .profile-card h3 { margin-bottom:15px; color:var(--gold); }
-        .profile-card p { margin:5px 0; font-size:14px; color:var(--text-secondary); }
-        .profile-card p span { color:var(--text); font-weight:600; }
+        .overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:100; display:none; align-items:center; justify-content:center; }
+        .overlay.show { display:flex; }
+        .card { background:var(--card); border:1px solid var(--border); border-radius:20px; padding:25px; min-width:280px; text-align:center; }
+        .card h3 { color:var(--gold); margin-bottom:12px; }
+        .card p { margin:4px 0; font-size:14px; color:var(--text-secondary); }
+        .card p span { color:var(--text); font-weight:600; }
+        .amount { font-size:32px; font-weight:800; margin:8px 0; }
+        .amount.win { color:var(--green); } .amount.lose { color:var(--red); }
+        .close-btn { padding:10px 30px; background:var(--gold); border:none; border-radius:10px; color:#000; font-weight:700; cursor:pointer; margin-top:12px; }
     </style>
 </head>
 <body>
 
 <header class="header">
-    <div class="logo"><span class="logo-up">UP</span><span class="logo-money">MONEY</span></div>
+    <div class="logo"><span class="logo-up">UP</span>MONEY</div>
     <div class="header-right">
-        <div class="balance-pill"><div class="balance-dot"></div><span id="balanceMini">0.00</span></div>
-        <div class="profile-btn" onclick="showProfile()">
-            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg>
-        </div>
+        <div class="balance-pill"><div class="balance-dot"></div><span id="bal">0.00</span></div>
+        <div class="profile-btn" onclick="showProfile()"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2"/></svg></div>
     </div>
 </header>
 
 <div class="wheel-frame">
-    <div class="wheel-aura" id="wheelAura"></div>
-    <canvas id="wheelCanvas" width="600" height="600"></canvas>
-    <div class="wheel-pointer" id="wheelPointer"><svg viewBox="0 0 24 16"><polygon points="12,16 0,0 24,0" fill="#fff"/></svg></div>
-    <div class="wheel-hub"><span class="hub-chance" id="hubChance">50%</span><span class="hub-label">chance</span></div>
+    <div class="wheel-aura" id="aura"></div>
+    <canvas id="wc" width="600" height="600"></canvas>
+    <div class="wheel-pointer"><svg viewBox="0 0 24 16"><polygon points="12,16 0,0 24,0" fill="#fff"/></svg></div>
+    <div class="wheel-hub"><span class="hub-chance" id="hub">50%</span></div>
 </div>
 
 <div class="chance-row" id="chanceRow">
-    <div class="chance-chip" data-chance="10"><div class="chip-value">10%</div><div class="chip-mult">x9.50</div></div>
-    <div class="chance-chip" data-chance="35"><div class="chip-value">35%</div><div class="chip-mult">x2.80</div></div>
-    <div class="chance-chip active" data-chance="50"><div class="chip-value">50%</div><div class="chip-mult">x1.95</div></div>
-    <div class="chance-chip" data-chance="75"><div class="chip-value">75%</div><div class="chip-mult">x1.30</div></div>
+    <div class="chance-chip active" data-c="10"><div class="chip-value">10%</div><div class="chip-mult">x9.50</div></div>
+    <div class="chance-chip" data-c="35"><div class="chip-value">35%</div><div class="chip-mult">x2.80</div></div>
+    <div class="chance-chip" data-c="50"><div class="chip-value">50%</div><div class="chip-mult">x1.95</div></div>
+    <div class="chance-chip" data-c="75"><div class="chip-value">75%</div><div class="chip-mult">x1.30</div></div>
 </div>
 
-<div class="bet-section">
-    <div class="bet-row">
-        <input type="text" class="bet-input" id="betInput" placeholder="0" inputmode="decimal">
-        <button class="quick-btn" onclick="quickBet(0.5)">1/2</button>
-        <button class="quick-btn" onclick="quickBet(1)">ALL</button>
-    </div>
+<div class="bet-row">
+    <input type="text" class="bet-input" id="bet" placeholder="0" inputmode="decimal">
+    <button class="quick-btn" onclick="qb(0.5)">1/2</button>
+    <button class="quick-btn" onclick="qb(1)">ALL</button>
 </div>
 
 <div class="btn-row">
     <button class="play-btn" id="playBtn" onclick="play()">PLAY</button>
-    <button class="upgrade-btn" id="upgradeBtn" onclick="doUpgrade()">UPGRADE</button>
+    <button class="upgrade-btn" id="upgBtn" onclick="upgrade()">UPGRADE</button>
 </div>
 
-<div class="result-overlay" id="resultOverlay">
-    <div class="result-card">
-        <div id="resultTitle" style="font-size:18px;color:var(--text-secondary);margin-bottom:8px;"></div>
-        <div class="result-amount" id="resultAmount"></div>
-        <div id="resultBalance" style="font-size:14px;color:var(--text-secondary);"></div>
-        <button class="result-close" onclick="closeResult()">OK</button>
+<div class="overlay" id="resOv">
+    <div class="card">
+        <div id="resT" style="font-size:18px;color:var(--text-secondary);"></div>
+        <div class="amount" id="resA"></div>
+        <div style="font-size:14px;color:var(--text-secondary);" id="resB"></div>
+        <button class="close-btn" onclick="document.getElementById('resOv').classList.remove('show')">OK</button>
     </div>
 </div>
 
-<div class="profile-overlay" id="profileOverlay">
-    <div class="profile-card" id="profileContent"></div>
+<div class="overlay" id="profOv">
+    <div class="card" id="profC"></div>
 </div>
 
 <script>
-const tg = window.Telegram.WebApp;
-tg.expand(); tg.ready();
+const tg = window.Telegram.WebApp; tg.expand(); tg.ready();
 
-let balance = 0, selectedChance = 50, level = 1, multiplier = 1, upgradeCost = 100;
-const multipliers = { 10:9.50, 35:2.80, 50:1.95, 75:1.30 };
-let isSpinning = false, profileData = null;
+let balance = 0, chance = 50, level = 1, mult = 1, upgCost = 100;
+const muls = {10:9.5, 35:2.8, 50:1.95, 75:1.3};
+let spinning = false, uid = null;
 
-const canvas = document.getElementById('wheelCanvas'), ctx = canvas.getContext('2d');
-const size = 600, cx = size/2, cy = size/2, outerR = 290, totalSegments = 360;
-let rotation = 0;
+// Получаем user_id через initDataUnsafe
+try { uid = tg.initDataUnsafe.user?.id || 0; } catch(e) {}
 
-function drawWheel(hl, inten) {
-    ctx.clearRect(0,0,size,size);
-    const slice = (2*Math.PI)/totalSegments;
-    for (let i=0; i<totalSegments; i++) {
-        const start = i*slice+rotation, end = start+slice;
-        const norm = ((start%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
-        const isWin = norm < (selectedChance/100)*2*Math.PI;
-        ctx.beginPath(); ctx.moveTo(cx,cy); ctx.arc(cx,cy,outerR,start,end); ctx.closePath();
-        if (hl==='win' && isWin) ctx.fillStyle = `rgba(45,212,168,${0.25*(inten||0)})`;
-        else if (hl==='lose' && !isWin) ctx.fillStyle = `rgba(244,80,80,${0.25*(inten||0)})`;
-        else if (isWin) ctx.fillStyle = i%2===0 ? '#0d2218' : '#10291d';
-        else ctx.fillStyle = i%2===0 ? '#180e0e' : '#1c1212';
-        ctx.fill();
+const cv = document.getElementById('wc'), cx = cv.getContext('2d');
+const S = 600, R = 290; let rot = 0;
+
+function draw(hl, int) {
+    cx.clearRect(0,0,S,S); const sl = (2*Math.PI)/360;
+    for (let i=0; i<360; i++) {
+        const st = i*sl+rot, en = st+sl;
+        const n = ((st%(2*Math.PI))+2*Math.PI)%(2*Math.PI);
+        const w = n < (chance/100)*2*Math.PI;
+        cx.beginPath(); cx.moveTo(300,300); cx.arc(300,300,R,st,en); cx.closePath();
+        if (hl==='win' && w) cx.fillStyle = `rgba(45,212,168,${.25*(int||0)})`;
+        else if (hl==='lose' && !w) cx.fillStyle = `rgba(244,80,80,${.25*(int||0)})`;
+        else if (w) cx.fillStyle = i%2?'#0d2218':'#10291d';
+        else cx.fillStyle = i%2?'#180e0e':'#1c1212';
+        cx.fill();
     }
-    const da = rotation;
-    ctx.save(); ctx.beginPath(); ctx.moveTo(cx,cy);
-    ctx.lineTo(cx+outerR*Math.cos(da), cy+outerR*Math.sin(da));
-    ctx.strokeStyle='rgba(255,255,255,0.7)'; ctx.lineWidth=1.8;
-    ctx.shadowColor='rgba(255,255,255,0.5)'; ctx.shadowBlur=6; ctx.stroke(); ctx.restore();
-    for (let i=0; i<72; i++) {
-        const a = (i/72)*2*Math.PI+rotation, len = i%6===0?12:5;
-        ctx.beginPath(); ctx.moveTo(cx+(outerR-len)*Math.cos(a), cy+(outerR-len)*Math.sin(a));
-        ctx.lineTo(cx+outerR*Math.cos(a), cy+outerR*Math.sin(a));
-        ctx.strokeStyle = i%6===0 ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)';
-        ctx.lineWidth = i%6===0 ? 1.2 : 0.6; ctx.stroke();
-    }
-    ctx.beginPath(); ctx.arc(cx,cy,outerR,0,2*Math.PI);
-    ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=2; ctx.stroke();
+    cx.beginPath(); cx.moveTo(300,300); cx.lineTo(300+R*Math.cos(rot), 300+R*Math.sin(rot));
+    cx.strokeStyle='rgba(255,255,255,0.7)'; cx.lineWidth=2; cx.stroke();
+    cx.beginPath(); cx.arc(300,300,R,0,2*Math.PI); cx.strokeStyle='rgba(255,255,255,0.08)'; cx.lineWidth=2; cx.stroke();
 }
-drawWheel();
+draw();
 
-document.getElementById('chanceRow').addEventListener('click', e => {
-    if (isSpinning) return;
-    const chip = e.target.closest('.chance-chip'); if (!chip) return;
-    document.querySelectorAll('.chance-chip').forEach(c => c.classList.remove('active'));
-    chip.classList.add('active');
-    selectedChance = Number(chip.dataset.chance);
-    document.getElementById('hubChance').textContent = selectedChance+'%';
-    drawWheel();
-});
+document.getElementById('chanceRow').onclick = e => {
+    if (spinning) return;
+    const c = e.target.closest('.chance-chip'); if (!c) return;
+    document.querySelectorAll('.chance-chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active'); chance = +c.dataset.c;
+    document.getElementById('hub').textContent = chance+'%'; draw();
+};
 
-const betInput = document.getElementById('betInput');
-betInput.addEventListener('input', function() {
-    let v = this.value.replace(/[^0-9.]/g, '');
-    if ((v.match(/\./g)||[]).length > 1) v = v.slice(0, v.lastIndexOf('.'));
-    const p = v.split('.'); if (p[1]?.length > 2) v = p[0]+'.'+p[1].slice(0,2);
-    this.value = v;
-});
+document.getElementById('bet').oninput = function() {
+    this.value = this.value.replace(/[^0-9.]/g,'');
+    if ((this.value.match(/\./g)||[]).length > 1) this.value = this.value.slice(0,-1);
+};
 
-function quickBet(f) { if (balance <= 0) return; betInput.value = (balance*f).toFixed(2); betInput.focus(); }
+function qb(f) { if (balance>0) document.getElementById('bet').value = (balance*f).toFixed(2); }
 
-function updateUI() {
-    document.getElementById('balanceMini').textContent = balance.toFixed(2);
-    document.getElementById('upgradeBtn').textContent = `UP x${multiplier.toFixed(1)} | ${upgradeCost.toFixed(0)}R`;
+function upd() {
+    document.getElementById('bal').textContent = balance.toFixed(2);
+    document.getElementById('upgBtn').textContent = `UP x${mult.toFixed(1)} | ${upgCost.toFixed(0)}R`;
 }
 
-function showResult(won, amount, newBalance) {
-    document.getElementById('resultTitle').textContent = won ? 'YOU WIN' : 'YOU LOSE';
-    const amt = document.getElementById('resultAmount');
-    amt.textContent = (won ? '+' : '-') + amount.toFixed(2) + ' RUB';
-    amt.className = 'result-amount ' + (won ? 'win' : 'lose');
-    document.getElementById('resultBalance').textContent = 'Balance: ' + newBalance.toFixed(2) + ' RUB';
-    document.getElementById('resultOverlay').classList.add('show');
-}
-function closeResult() { document.getElementById('resultOverlay').classList.remove('show'); }
-
-function setWheelUI(type) {
-    const aura = document.getElementById('wheelAura'), ptr = document.getElementById('wheelPointer');
-    aura.className = 'wheel-aura ' + type; ptr.className = 'wheel-pointer ' + type;
-    setTimeout(() => { aura.className = 'wheel-aura'; ptr.className = 'wheel-pointer'; }, 1000);
-}
-
-function spinWheel(won, callback) {
-    isSpinning = true;
-    const speed = 10 + Math.random()*22, duration = 2000 + Math.random()*1400;
-    const startRot = rotation, t0 = performance.now();
-    let hlDone = false, inten = 0;
-    (function anim(now) {
-        const p = Math.min((now-t0)/duration, 1);
-        const ease = 1 - Math.pow(1-p, 4);
-        rotation = startRot + (speed*duration/1000)*(ease + (p>0.82 ? Math.sin((p-0.82)/0.18*Math.PI*2)*0.018*(1-p) : 0));
-        if (p > 0.78 && !hlDone) hlDone = true;
-        inten = hlDone ? Math.min(1, (p-0.78)/0.22) : 0;
-        drawWheel(hlDone ? (won?'win':'lose') : null, inten);
-        if (p < 1) requestAnimationFrame(anim);
-        else {
-            drawWheel(won?'win':'lose', 1); setWheelUI(won?'win':'lose');
-            isSpinning = false; if (callback) callback();
-        }
+function spin(won, cb) {
+    spinning = true;
+    const sp = 10+Math.random()*22, dur = 2000+Math.random()*1400;
+    const sR = rot, t0 = performance.now(); let hl = false, int = 0;
+    (function a(now) {
+        const p = Math.min((now-t0)/dur, 1);
+        rot = sR + (sp*dur/1000)*(1-Math.pow(1-p,4));
+        if (p>.78 && !hl) hl = true;
+        int = hl ? Math.min(1,(p-.78)/.22) : 0;
+        draw(hl?(won?'win':'lose'):null, int);
+        if (p<1) requestAnimationFrame(a);
+        else { draw(won?'win':'lose',1); setAura(won); spinning = false; if (cb) cb(); }
     })(t0);
 }
 
-function play() {
-    if (isSpinning) return;
-    const bet = parseFloat(betInput.value.trim());
-    if (!bet || bet <= 0 || isNaN(bet)) { tg.showAlert('Enter bet amount'); return; }
-    if (bet > balance) { tg.showAlert('Insufficient funds'); return; }
-
-    document.getElementById('playBtn').disabled = true;
-    const mult = multipliers[selectedChance];
-
-    // Отправляем боту, он решит исход
-    tg.sendData(JSON.stringify({ action: 'play', bet, chance: selectedChance, multiplier: mult }));
+function setAura(w) {
+    const a = document.getElementById('aura'); a.className = 'wheel-aura '+(w?'win':'lose');
+    setTimeout(() => a.className = 'wheel-aura', 1000);
 }
 
-function doUpgrade() {
-    tg.sendData(JSON.stringify({ action: 'do_upgrade' }));
+function play() {
+    if (spinning) return;
+    const bet = parseFloat(document.getElementById('bet').value);
+    if (!bet || bet<=0) return tg.showAlert('Enter bet');
+    if (bet > balance) return tg.showAlert('No funds');
+    document.getElementById('playBtn').disabled = true;
+
+    const won = Math.random()*100 <= chance;
+    const mm = muls[chance];
+    spin(won, () => {
+        const winAmt = won ? bet*mm*mult : 0;
+        balance = won ? balance + winAmt : balance - bet;
+        upd();
+        document.getElementById('resT').textContent = won ? 'WIN' : 'LOSE';
+        const am = document.getElementById('resA');
+        am.textContent = (won?'+':'')+(won?winAmt:bet).toFixed(2)+' RUB';
+        am.className = 'amount '+(won?'win':'lose');
+        document.getElementById('resB').textContent = 'Balance: '+balance.toFixed(2);
+        document.getElementById('resOv').classList.add('show');
+        document.getElementById('playBtn').disabled = false;
+        document.getElementById('bet').value = '';
+
+        // Синхронизация с ботом
+        tg.sendData(JSON.stringify({action:'play', bet, chance, won, multiplier:mm}));
+    });
+}
+
+function upgrade() {
+    if (balance >= upgCost) {
+        balance -= upgCost; level++; mult *= 1.5; upgCost *= 2;
+        upd(); tg.showAlert('Level '+level+' | x'+mult.toFixed(1));
+        tg.sendData(JSON.stringify({action:'do_upgrade'}));
+    } else tg.showAlert('Insufficient funds');
 }
 
 function showProfile() {
-    tg.sendData(JSON.stringify({ action: 'get_profile' }));
+    tg.sendData(JSON.stringify({action:'get_profile'}));
+    // Ответ придёт в следующем сообщении, парсим через history
+    setTimeout(loadProfile, 500);
 }
 
-// Обработка ответов от бота
-window.addEventListener('message', function(event) {
-    try {
-        const data = JSON.parse(event.data);
-        handleBotResponse(data);
-    } catch(e) {}
-});
-
-// Альтернативно: бот присылает JSON через sendData ответ
-// Используем polling CloudStorage
-function checkMessages() {
-    tg.CloudStorage.getItem('bot_msg', (err, val) => {
-        if (val) {
-            try {
-                const data = JSON.parse(val);
-                handleBotResponse(data);
-                tg.CloudStorage.removeItem('bot_msg');
-            } catch(e) {}
+function loadProfile() {
+    // Запрашиваем через sendData и ждём ответ вручную
+    fetch(`https://api.telegram.org/bot8803677733:AAFWQNmhDX1ZTg8bjvYuX7duZg6YVKs1Xa4/getUpdates?offset=-1`)
+    .then(r => r.json()).then(d => {
+        if (d.result?.length) {
+            const msg = d.result[0].message;
+            if (msg?.text?.startsWith('{')) {
+                const data = JSON.parse(msg.text);
+                if (data.email) showProfileCard(data);
+            }
         }
-    });
-}
-setInterval(checkMessages, 500);
-
-function handleBotResponse(data) {
-    if (data.action === 'result') {
-        balance = data.new_balance;
-        level = data.level;
-        multiplier = data.multiplier;
-        showResult(data.won, data.amount, balance);
-        updateUI();
-        document.getElementById('playBtn').disabled = false;
-        betInput.value = '';
-    } else if (data.action === 'upgrade_result') {
-        if (data.success) {
-            balance = data.balance;
-            level = data.level;
-            multiplier = data.multiplier;
-            upgradeCost = data.upgrade_cost;
-            tg.showAlert('Upgraded! Level ' + level + ' | x' + multiplier.toFixed(1));
-        } else {
-            tg.showAlert('Insufficient funds');
-        }
-        updateUI();
-    } else if (data.email) {
-        // Profile data
-        profileData = data;
-        document.getElementById('profileContent').innerHTML = `
-            <h3>PROFILE</h3>
-            <p>Email: <span>${data.email}</span></p>
-            <p>Balance: <span>${data.balance.toFixed(2)} RUB</span></p>
-            <p>Level: <span>${data.level} | x${data.multiplier.toFixed(1)}</span></p>
-            <p>Games: <span>${data.games_played}</span></p>
-            <p>Winrate: <span>${data.winrate}%</span></p>
-            <p>Wins: <span>${data.total_wins.toFixed(0)} RUB</span></p>
-            <p>Losses: <span>${data.total_losses.toFixed(0)} RUB</span></p>
-            <p>Upgrade: <span>${data.upgrade_cost.toFixed(0)} RUB</span></p>
-            <p>Since: <span>${data.registered_at?.slice(0,10) || '-'}</span></p>
-            <button class="result-close" onclick="document.getElementById('profileOverlay').classList.remove('show')">CLOSE</button>
-        `;
-        document.getElementById('profileOverlay').classList.add('show');
-    }
+    }).catch(() => {});
 }
 
-// Загружаем профиль при старте
-tg.sendData(JSON.stringify({ action: 'get_profile' }));
+function showProfileCard(d) {
+    document.getElementById('profC').innerHTML = `
+        <h3>PROFILE</h3>
+        <p>Email: <span>${d.email}</span></p>
+        <p>Balance: <span>${d.balance.toFixed(2)} RUB</span></p>
+        <p>Level: <span>${d.level} | x${d.multiplier.toFixed(1)}</span></p>
+        <p>Games: <span>${d.games_played}</span></p>
+        <p>Winrate: <span>${d.winrate}%</span></p>
+        <p>Upgrade: <span>${d.upgrade_cost.toFixed(0)} RUB</span></p>
+        <button class="close-btn" onclick="document.getElementById('profOv').classList.remove('show')">CLOSE</button>
+    `;
+    document.getElementById('profOv').classList.add('show');
+}
 
-(function idle() {
-    if (!isSpinning) { rotation += 0.00025; drawWheel(); }
-    requestAnimationFrame(idle);
-})();
+// Idle animation
+(function idle() { if (!spinning) { rot += .00025; draw(); } requestAnimationFrame(idle); })();
 
-updateUI();
+// Загружаем начальный профиль
+setTimeout(() => tg.sendData(JSON.stringify({action:'get_profile'})), 1000);
+
+upd();
 </script>
 </body>
 </html>
