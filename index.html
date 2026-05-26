@@ -19,6 +19,7 @@
             --green-glow: rgba(0, 255, 136, 0.3);
             --red-color: #ff3355;
             --red-glow: rgba(255, 51, 85, 0.3);
+            --twitch-color: #9146ff;
         }
 
         /* Полная блокировка скролла и системных свайпов */
@@ -41,6 +42,20 @@
             width: 100%; max-width: 440px; height: 100vh; margin: 0 auto;
             display: flex; flex-direction: column; position: relative; z-index: 1; overflow: hidden;
         }
+
+        /* ОБЪЯВЛЕНИЕ О ПАРТНЕРЕ ВВЕРХУ */
+        .partner-ticker {
+            background: var(--panel-color);
+            border: 1px solid var(--panel-border);
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .partner-ticker span { color: var(--text-muted); }
+        .partner-ticker a { color: var(--accent-color); text-decoration: none; text-shadow: 0 0 10px var(--accent-glow); }
 
         /* ЭКРАН ВХОДА (ВЫСШИЙ ГЛАССМОРФИЗМ) */
         .auth-screen { 
@@ -114,7 +129,8 @@
         .ring-bg { fill: none; stroke: rgba(20,24,38,0.8); stroke-width: 18; }
         .ring-fill { 
             fill: none; stroke: url(#accent-grad); stroke-width: 18; 
-            stroke-linecap: round; stroke-dasharray: 565.48; stroke-dashoffset: 282.74; 
+            stroke-linecap: butt; /* ИСПРАВЛЕНИЕ: ХИТБОКС ТЕПЕРЬ ИДЕАЛЬНО РОВНЫЙ ПО МАТЕМАТИКЕ */
+            stroke-dasharray: 565.48; stroke-dashoffset: 282.74; 
             transition: stroke-dashoffset 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
             animation: pulseGlow 2s infinite alternate ease-in-out;
         }
@@ -184,6 +200,40 @@
         .upgrade-btn:active { transform: scale(0.97); filter: brightness(0.9); }
         .upgrade-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
 
+        /* КБЕР-БАННЕР СТРИМЕРА */
+        .twitch-banner {
+            background: linear-gradient(135deg, rgba(20,24,38,0.9) 0%, rgba(145,70,255,0.15) 100%);
+            border: 1px solid rgba(145, 70, 255, 0.3);
+            border-radius: 20px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        .banner-badge {
+            background: var(--twitch-color);
+            color: white;
+            font-size: 10px;
+            font-weight: 900;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 100px;
+            align-self: flex-start;
+            letter-spacing: 1px;
+            box-shadow: 0 0 10px rgba(145, 70, 255, 0.5);
+        }
+        .banner-title { font-size: 16px; font-weight: 900; letter-spacing: 0.5px; }
+        .banner-text { color: var(--text-muted); font-size: 12px; line-height: 1.4; }
+        .banner-link {
+            background: #fff; color: #000; text-decoration: none; text-align: center;
+            padding: 12px; border-radius: 12px; font-weight: 800; font-size: 13px;
+            transition: all 0.2s; display: block; margin-top: 4px;
+        }
+        .banner-link:active { transform: scale(0.97); background: rgba(255,255,255,0.9); }
+
         /* ОКНО КОШЕЛЬКА */
         .wallet-section { 
             background: var(--panel-color); border: 1px solid var(--panel-border); 
@@ -216,7 +266,7 @@
 
         /* ПРОФИЛЬ С ИСТОРИЕЙ ИГР */
         .profile-view { 
-            position: absolute; top: 75px; left: 0; width: 100%; height: calc(100% - 75px); 
+            position: absolute; top: 110px; left: 0; width: 100%; height: calc(100% - 110px); 
             background: var(--bg-color); z-index: 50; padding: 16px; display: flex; flex-direction: column; 
             gap: 14px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
             overflow: hidden; justify-content: space-between;
@@ -236,6 +286,19 @@
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); padding: 12px; border-radius: 16px; text-align: center; }
         .stat-val { font-size: 20px; font-weight: 900; margin-top: 4px; }
+
+        /* БЛОК КИБЕР-ПРОМОКОДОВ */
+        .cyber-promo-box {
+            background: var(--panel-color);
+            border: 1px solid var(--panel-border);
+            border-radius: 20px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .promo-input-group { display: flex; gap: 8px; }
+        .promo-input-group input { flex: 1; text-transform: uppercase; }
 
         /* БЛОК ИСТОРИИ ИГР */
         .history-section { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: hidden; margin: 4px 0; }
@@ -263,7 +326,7 @@
 
         /* УВЕДОМЛЕНИЯ ТОСТЫ */
         .toast { 
-            position: absolute; top: 90px; left: 50%; transform: translateX(-50%) scale(0.8); 
+            position: absolute; top: 120px; left: 50%; transform: translateX(-50%) scale(0.8); 
             padding: 14px 24px; border-radius: 18px; font-size: 14px; font-weight: 800; 
             z-index: 200; opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             pointer-events: none; text-align: center; width: 85%; box-shadow: 0 15px 35px rgba(0,0,0,0.4); backdrop-filter: blur(10px);
@@ -279,6 +342,11 @@
 
     <div class="app-container">
         <div id="toast-msg" class="toast"></div>
+
+        <div class="partner-ticker">
+            <span>🔥 МЕДИА-ПАРТНЕР:</span>
+            <a href="https://twitch.tv/mehhan1k" target="_blank">MEHHAN1K НА TWITCH ↗</a>
+        </div>
 
         <div class="auth-screen" id="auth-screen">
             <div class="auth-card">
@@ -317,6 +385,14 @@
             <div class="stats-grid">
                 <div class="stat-box"><div style="font-size:11px;color:var(--text-muted);font-weight:800;">Всего игр</div><div class="stat-val" id="st-games" style="color:var(--accent-color)">0</div></div>
                 <div class="stat-box"><div style="font-size:11px;color:var(--text-muted);font-weight:800;">Винрейт</div><div class="stat-val" id="st-wr" style="color:#fff">0%</div></div>
+            </div>
+
+            <div class="cyber-promo-box">
+                <div style="font-size: 11px; color: var(--accent-color); font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">🎁 Активация промокода</div>
+                <div class="promo-input-group">
+                    <input type="text" class="auth-input" id="promo-input" placeholder="Код (например: MEHHANIK)" style="padding: 10px; font-size: 14px;">
+                    <button class="wallet-btn" onclick="activatePromo()" style="padding: 0 20px; border-radius: 14px;">ОК</button>
+                </div>
             </div>
 
             <div class="history-section">
@@ -379,6 +455,13 @@
                 </div>
 
                 <button class="upgrade-btn" id="upgrade-button">Запустить апгрейд</button>
+
+                <div class="twitch-banner">
+                    <div class="banner-badge">Live Эфир</div>
+                    <div class="banner-title">Стримы от mehhan1k</div>
+                    <div class="banner-text">Залетай на сочные трансляции, участвуй в интерактивных розыгрышах прямо сейчас!</div>
+                    <a href="https://twitch.tv/mehhan1k" target="_blank" class="banner-link">Смотреть трансляцию</a>
+                </div>
             </div>
 
             <div id="view-wallet" class="hidden" style="display:flex; flex-direction:column; gap:14px; flex: 1; justify-content: center;">
@@ -448,20 +531,17 @@
             });
         });
 
-        // Функция автоматического скрытия экрана входа
         function hideAuthScreen() {
             document.getElementById('auth-screen').style.opacity = '0';
             setTimeout(() => document.getElementById('auth-screen').classList.add('hidden'), 500);
         }
 
-        // --- АВТОМАТИЧЕСКИЙ ВХОД (ПРИ ЗАПУСКЕ) ---
         async function checkAutoLogin() {
             const savedUser = localStorage.getItem('upmoney_user');
             const savedPass = localStorage.getItem('upmoney_pass');
 
             if (savedUser && savedPass) {
                 try {
-                    // Проверяем актуальные данные аккаунта на сервере
                     let res = await fetch(`${API_URL}/api/auth`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
@@ -474,10 +554,9 @@
                         showToast(`Успешный авто-вход: ${userLocal.username}`, true);
                         syncUI();
                     } else {
-                        localStorage.clear(); // Стираем битые данные, если пароль поменялся
+                        localStorage.clear();
                     }
                 } catch(e) {
-                    // Если локальная отладка и нет сети — заходим по памяти автономно
                     hideAuthScreen();
                     userLocal = { username: savedUser, balance: 500.0, games:0, wins:0, losses:0, avatar:null };
                     syncUI();
@@ -499,8 +578,6 @@
                 let data = await res.json();
                 if(res.ok) {
                     userLocal = data.user;
-                    
-                    // СОХРАНЯЕМ ДАННЫЕ В БРАУЗЕР НАВСЕГДА
                     localStorage.setItem('upmoney_user', usernameInput);
                     localStorage.setItem('upmoney_pass', passwordInput);
 
@@ -521,219 +598,86 @@
         document.getElementById('btn-login').addEventListener('click', () => sendAuth('login'));
         document.getElementById('btn-register').addEventListener('click', () => sendAuth('register'));
 
-        // Кнопка смены аккаунта в профиле
         document.getElementById('btn-logout').addEventListener('click', () => {
             localStorage.clear();
-            location.reload(); // Перезагружаем приложение, откроется окно логина
+            location.reload();
         });
 
-        function updateHistoryDOM() {
-            historyContainer.innerHTML = "";
-            const displayHistory = localHistory.slice(-4).reverse();
-            
-            if(displayHistory.length === 0) {
-                historyContainer.innerHTML = `<div style="text-align:center; font-size:12px; color:var(--text-muted); padding:10px;">История пуста. Сделайте первую ставку!</div>`;
+        // ЛОГИКА ПРОМОКОДОВ С СОХРАНЕНИЕМ БАЛАНСА
+        async function activatePromo() {
+            if (!userLocal) return;
+            const input = document.getElementById('promo-input');
+            const code = input.value.trim().toLowerCase();
+
+            if (!code) return;
+
+            const promoKey = `cyber_promo_${userLocal.username}_${code}`;
+
+            if (localStorage.getItem(promoKey)) {
+                showToast("Вы уже активировали этот промокод!", false);
                 return;
             }
 
-            displayHistory.forEach(item => {
-                const div = document.createElement('div');
-                div.className = "history-item";
-                div.innerHTML = `
-                    <div class="hist-badge ${item.win ? 'hist-win' : 'hist-loss'}">${item.win ? 'Вин' : 'Луз'}</div>
-                    <div class="hist-info">
-                        <div class="hist-amount">${item.win ? '+' : '-'}${item.amount.toFixed(2)}₽</div>
-                        <div class="hist-time">${item.time} (x${item.mult})</div>
-                    </div>
-                `;
-                historyContainer.appendChild(div);
-            });
+            if (code === "mehhanik") {
+                userLocal.balance = parseFloat(userLocal.balance) + 100;
+                localStorage.setItem(promoKey, "true");
+                showToast("Промокод активирован! +100₽", true);
+                input.value = "";
+                syncUI();
+
+                // Отправляем синхронизацию баланса на бэкенд, если доступен
+                try {
+                    await fetch(`${API_URL}/api/game/save`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: userLocal.username, balance: userLocal.balance })
+                    });
+                } catch(e) {
+                    console.log("Локальное сохранение промокода выполнено успешно.");
+                }
+            } else {
+                showToast("Неверный промокод", false);
+            }
         }
 
         function syncUI() {
             if(!userLocal) return;
-            document.getElementById('header-balance').textContent = userLocal.balance.toFixed(2);
+            const fixedBalance = parseFloat(userLocal.balance).toFixed(2);
+            document.getElementById('header-balance').textContent = fixedBalance;
             document.getElementById('user-title').textContent = userLocal.username.toUpperCase();
-            document.getElementById('st-games').textContent = userLocal.games;
-            const wr = userLocal.games > 0 ? Math.round((userLocal.wins / userLocal.games) * 100) : 0;
-            document.getElementById('st-wr').textContent = wr + '%';
+            document.getElementById('st-games').textContent = userLocal.games || 0;
+            
+            let wr = 0;
+            if(userLocal.games > 0) {
+                wr = Math.round(((userLocal.wins || 0) / userLocal.games) * 100);
+            }
+            document.getElementById('st-wr').textContent = wr + "%";
 
             if(userLocal.avatar) {
                 document.getElementById('my-avatar').src = userLocal.avatar;
                 document.getElementById('big-avatar').src = userLocal.avatar;
             }
-            updateHistoryDOM();
         }
 
-        async function saveGameStats() {
-            syncUI();
-            try {
-                await fetch(`${API_URL}/api/game/save`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(userLocal)
-                });
-            } catch(e){}
-        }
+        // Переключение табов и профиля
+        const viewGame = document.getElementById('view-game');
+        const viewWallet = document.getElementById('view-wallet');
+        const tabGame = document.getElementById('tab-game');
+        const tabWallet = document.getElementById('tab-wallet');
+        const profilePage = document.getElementById('profile-page');
 
-        function updateRing(chance) {
-            if(chance > 75) chance = 75;
-            const offset = ringCircumference - (chance / 100) * ringCircumference;
-            ringProgress.style.strokeDashoffset = offset;
-            chancePercent.textContent = chance.toFixed(2) + '%';
-        }
-
-        function recalculateByChance() {
-            let bet = parseFloat(inputBet.value) || 0;
-            let chance = parseFloat(chanceSlider.value);
-            if(chance > 75) { chance = 75; chanceSlider.value = 75; }
-            updateRing(chance);
-            if (bet > 0) inputTarget.value = (bet * (100 / chance)).toFixed(2);
-        }
-
-        function recalculateByTarget() {
-            let bet = parseFloat(inputBet.value) || 0;
-            let target = parseFloat(inputTarget.value) || 0;
-            if (bet > 0 && target > bet) {
-                let chance = (bet / target) * 100;
-                chance = Math.max(1, Math.min(75, chance));
-                chanceSlider.value = Math.round(chance);
-                updateRing(chance);
-            }
-        }
-
-        document.querySelectorAll('.chance-btn').forEach(b => {
-            b.addEventListener('click', (e) => {
-                if(isPlaying) return;
-                chanceSlider.value = e.target.getAttribute('data-val');
-                recalculateByChance();
-            });
+        tabGame.addEventListener('click', () => {
+            tabGame.classList.add('active'); tabWallet.classList.remove('active');
+            viewGame.classList.remove('hidden'); viewWallet.classList.add('hidden');
         });
-
-        chanceSlider.addEventListener('input', recalculateByChance);
-        inputBet.addEventListener('input', recalculateByChance);
-        inputTarget.addEventListener('input', recalculateByTarget);
-
-        upgradeButton.addEventListener('click', () => {
-            if (isPlaying || !userLocal) return;
-            let bet = parseFloat(inputBet.value) || 0;
-            if (bet <= 0 || bet > userLocal.balance) { showToast("Проверьте сумму ставки!", false); return; }
-
-            isPlaying = true;
-            upgradeButton.disabled = true;
-            userLocal.balance -= bet;
-            document.getElementById('header-balance').textContent = userLocal.balance.toFixed(2);
-            document.getElementById('balance-badge-container').classList.add('bump');
-
-            const chance = parseFloat(chanceSlider.value);
-            const roll = Math.random() * 100; 
-            const isWin = roll <= chance;    
-
-            let targetAngle = 0;
-            if (isWin) {
-                targetAngle = Math.random() * (chance * 3.6);
-            } else {
-                targetAngle = (chance * 3.6) + Math.random() * ((100 - chance) * 3.6);
-            }
-
-            const totalRotation = 2160 + targetAngle; 
-            const duration = 2800; 
-
-            axialNeedle.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.9, 0.2, 1)`;
-            axialNeedle.style.transform = `rotate(${totalRotation}deg)`;
-
-            setTimeout(() => {
-                axialNeedle.style.transition = 'none';
-                axialNeedle.style.transform = `rotate(${targetAngle}deg)`;
-                document.getElementById('balance-badge-container').classList.remove('bump');
-                
-                userLocal.games++;
-                let mult = (100 / chance).toFixed(1);
-                let now = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit', second:'2-digit'});
-
-                if (isWin) {
-                    let winAmount = parseFloat(inputTarget.value);
-                    userLocal.balance += winAmount;
-                    userLocal.wins++;
-                    showToast(`Апгрейд прошёл! +${winAmount.toFixed(2)}₽`, true);
-                    localHistory.push({ win: true, amount: winAmount, mult: mult, time: now });
-                } else {
-                    userLocal.losses++;
-                    showToast("Увы, предмет сгорел", false);
-                    localHistory.push({ win: false, amount: bet, mult: mult, time: now });
-                }
-
-                isPlaying = false;
-                upgradeButton.disabled = false;
-                saveGameStats();
-            }, duration);
+        tabWallet.addEventListener('click', () => {
+            tabWallet.classList.add('active'); tabGame.classList.remove('active');
+            viewWallet.classList.remove('hidden'); viewGame.classList.add('hidden');
         });
+        document.getElementById('go-profile').addEventListener('click', () => profilePage.classList.add('active'));
+        document.getElementById('back-to-game').addEventListener('click', () => profilePage.classList.remove('active'));
 
-        async function sendTransaction(type, amount) {
-            if(!userLocal) return;
-            try {
-                let res = await fetch(`${API_URL}/api/transaction`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ username: userLocal.username, tg_id: myTelegramId, type: type, amount: amount })
-                });
-                if(res.ok) {
-                    showToast("Уведомление отправлено админу!", true);
-                    document.getElementById('dep-amount').value = '';
-                    document.getElementById('with-amount').value = '';
-                } else {
-                    let err = await res.json();
-                    showToast(err.error || "Ошибка создания", false);
-                }
-            } catch(e) { showToast("Сервер не отвечает.", false); }
-        }
-
-        document.getElementById('btn-deposit').addEventListener('click', () => {
-            let val = parseFloat(document.getElementById('dep-amount').value);
-            if(val > 0) sendTransaction('deposit', val);
-        });
-
-        document.getElementById('btn-withdraw').addEventListener('click', () => {
-            let val = parseFloat(document.getElementById('with-amount').value);
-            if(val > 0) sendTransaction('withdraw', val);
-        });
-
-        document.getElementById('file-avatar').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (!file || !userLocal) return;
-            const r = new FileReader();
-            r.onloadend = async function() {
-                userLocal.avatar = r.result;
-                syncUI();
-                try {
-                    await fetch(`${API_URL}/api/avatar/save`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({username: userLocal.username, avatar: r.result})
-                    });
-                } catch(err){}
-            };
-            r.readAsDataURL(file);
-        });
-
-        document.getElementById('go-profile').addEventListener('click', () => document.getElementById('profile-page').classList.add('active'));
-        document.getElementById('back-to-game').addEventListener('click', () => document.getElementById('profile-page').classList.remove('active'));
-        
-        document.getElementById('tab-game').addEventListener('click', (e) => {
-            document.getElementById('view-game').classList.remove('hidden');
-            document.getElementById('view-wallet').classList.add('hidden');
-            document.getElementById('tab-wallet').classList.remove('active');
-            e.target.classList.add('active');
-        });
-        document.getElementById('tab-wallet').addEventListener('click', (e) => {
-            document.getElementById('view-wallet').classList.remove('hidden');
-            document.getElementById('view-game').classList.add('hidden');
-            document.getElementById('tab-game').classList.remove('active');
-            e.target.classList.add('active');
-        });
-
-        // Запуск триггера проверки сохраненной сессии
-        recalculateByChance();
+        // Инициализация при старте
         checkAutoLogin();
     </script>
 </body>
