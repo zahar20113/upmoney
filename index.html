@@ -190,7 +190,20 @@
             border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 14px; 
             backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .wallet-instruction { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .wallet-instruction { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+        
+        /* Стилизация интерактивной карты */
+        .credit-card-box {
+            background: linear-gradient(135deg, rgba(30,35,55,0.9) 0%, rgba(15,18,30,0.9) 100%);
+            border: 1px solid rgba(255,204,0,0.2); border-radius: 16px; padding: 16px;
+            display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: all 0.2s;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 8px 20px rgba(0,0,0,0.4);
+        }
+        .credit-card-box:active { transform: scale(0.98); border-color: var(--accent-color); }
+        .card-chip { width: 30px; height: 22px; background: rgba(255,255,255,0.15); border-radius: 4px; }
+        .card-number { font-size: 18px; font-weight: 800; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-family: monospace; text-align: center; margin: 4px 0; }
+        .card-copy-hint { font-size: 10px; color: var(--accent-color); text-align: center; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+
         .wallet-input { 
             background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); padding: 14px 16px; 
             border-radius: 14px; color: white; font-size: 16px; outline: none; transition: all 0.2s; text-align: center;
@@ -221,10 +234,14 @@
         }
         .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
         
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); padding: 12px; border-radius: 16px; text-align: center; }
+        .stat-val { font-size: 20px; font-weight: 900; margin-top: 4px; }
+
         /* БЛОК ИСТОРИИ ИГР (ФИКСИРОВАННЫЙ РАЗМЕР) */
         .history-section { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: hidden; margin: 4px 0; }
         .history-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; padding-left: 4px; }
-        .history-list { display: flex; flex-direction: column; gap: 8px; overflow: hidden; } /* Строго зафиксирован */
+        .history-list { display: flex; flex-direction: column; gap: 8px; overflow: hidden; } 
         
         .history-item { 
             background: rgba(255, 255, 255, 0.02); border: 1px solid var(--panel-border);
@@ -301,8 +318,7 @@
 
             <div class="history-section">
                 <div class="history-title">Последние Апгрейды</div>
-                <div class="history-list" id="history-container">
-                    </div>
+                <div class="history-list" id="history-container"></div>
             </div>
 
             <button class="tab-btn" id="back-to-game" style="background: rgba(255,255,255,0.04); color: #fff; border: 1px solid var(--panel-border); border-radius: 16px; padding: 14px; width: 100%;">Вернуться в лобби</button>
@@ -365,8 +381,15 @@
             <div id="view-wallet" class="hidden" style="display:flex; flex-direction:column; gap:14px; flex: 1; justify-content: center;">
                 <div class="wallet-section">
                     <h4 style="color:var(--accent-color); font-size: 15px; font-weight: 900;">📥 Пополнение счета</h4>
-                    <p class="wallet-instruction">Переведите рубли по СБП на номер:<br><b style="color:#fff; font-size:15px;">+79069092500</b>.<br>Укажите точную сумму перевода ниже:</p>
-                    <input type="number" class="wallet-input" id="dep-amount" placeholder="Сумма платежа (₽)">
+                    <p class="wallet-instruction">Переведите рубли на карту. Нажмите на неё, чтобы скопировать номер автоматически:</p>
+                    
+                    <div class="credit-card-box" id="credit-card" title="Нажмите, чтобы скопировать">
+                        <div class="card-chip"></div>
+                        <div class="card-number" id="card-num-text">2200 1545 8773 9565</div>
+                        <div class="card-copy-hint">Нажми для копирования</div>
+                    </div>
+
+                    <input type="number" class="wallet-input" id="dep-amount" placeholder="Сумма перевода (₽)">
                     <button class="wallet-btn" id="btn-deposit">Создать уведомление</button>
                 </div>
 
@@ -383,7 +406,6 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // ТУТ ВСТАВЬ СВОЮ ДЕЙСТВУЮЩУЮ ССЫЛКУ ИЗ NGROK ДЛЯ РАБОТЫ ПО HTTPS
         const API_URL = "https://darling-clever-splatter.ngrok-free.dev"; 
         
         const tgUserRaw = tg.initDataUnsafe?.user || { id: 6568063076 };
@@ -391,7 +413,7 @@
 
         let userLocal = null; 
         let isPlaying = false;
-        let localHistory = []; // Хранилище сессионной истории игр
+        let localHistory = []; 
         const ringCircumference = 2 * Math.PI * 92;
 
         const ringProgress = document.getElementById('ring-progress');
@@ -405,7 +427,6 @@
 
         ringProgress.style.strokeDasharray = ringCircumference;
 
-        // Полная блокировка стандартных свайпов Telegram Mini App (страница не будет прыгать)
         document.addEventListener('touchmove', function (e) { if(e.touches.length > 1) { e.preventDefault(); } }, { passive: false });
 
         function showToast(text, isSuccess) {
@@ -414,6 +435,16 @@
             t.className = `toast ${isSuccess ? 'toast-success' : 'toast-error'} show`;
             setTimeout(() => t.classList.remove('show'), 2500);
         }
+
+        // Автокопирование номера карты при нажатии
+        document.getElementById('credit-card').addEventListener('click', () => {
+            const rawCardNum = "2200154587739565";
+            navigator.clipboard.writeText(rawCardNum).then(() => {
+                showToast("Номер карты скопирован!", true);
+            }).catch(() => {
+                showToast("Не удалось скопировать", false);
+            });
+        });
 
         async function sendAuth(action) {
             const usernameInput = document.getElementById('auth-user').value.trim();
@@ -435,7 +466,6 @@
                     syncUI();
                 } else { showToast(data.error || "Ошибка", false); }
             } catch(e) {
-                // Если ngrok отключен — включаем автономный режим разработчика
                 showToast("Вход в режиме локальной отладки", true);
                 userLocal = { username: usernameInput, balance: 500.0, games:0, wins:0, losses:0, avatar:null };
                 document.getElementById('auth-screen').classList.add('hidden');
@@ -448,7 +478,6 @@
 
         function updateHistoryDOM() {
             historyContainer.innerHTML = "";
-            // Выводим только последние 4 игры, чтобы они не растягивали интерфейс
             const displayHistory = localHistory.slice(-4).reverse();
             
             if(displayHistory.length === 0) {
@@ -534,7 +563,6 @@
         inputBet.addEventListener('input', recalculateByChance);
         inputTarget.addEventListener('input', recalculateByTarget);
 
-        // --- КИНЕМАТИЧЕСКОЕ ИГРОВОЕ КРУЧЕНИЕ ---
         upgradeButton.addEventListener('click', () => {
             if (isPlaying || !userLocal) return;
             let bet = parseFloat(inputBet.value) || 0;
@@ -557,7 +585,7 @@
                 targetAngle = (chance * 3.6) + Math.random() * ((100 - chance) * 3.6);
             }
 
-            const totalRotation = 2160 + targetAngle; // 6 полных красивых оборотов
+            const totalRotation = 2160 + targetAngle; 
             const duration = 2800; 
 
             axialNeedle.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.9, 0.2, 1)`;
@@ -590,7 +618,6 @@
             }, duration);
         });
 
-        // --- ТРАНЗАКЦИИ ПО API ---
         async function sendTransaction(type, amount) {
             if(!userLocal) return;
             try {
