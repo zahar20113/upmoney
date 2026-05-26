@@ -3,107 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>UPMONEY Mini App</title>
+    <title>UPMONEY Premium</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root {
-            --bg-color: #07070a;
-            --panel-color: #0f0f14;
-            --panel-border: #1b1b22;
+            --bg-color: #0b0c10;
+            --panel-color: #141722;
+            --panel-border: #222636;
             --accent-color: #ffcc00;
-            --accent-glow: rgba(255, 204, 0, 0.25);
+            --accent-glow: rgba(255, 204, 0, 0.35);
             --text-color: #ffffff;
-            --text-muted: #626270;
-            --green-color: #00ff66;
-            --red-color: #ff3344;
+            --text-muted: #8a8f9f;
+            --green-color: #00ff88;
+            --green-glow: rgba(0, 255, 136, 0.2);
+            --red-color: #ff3855;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
 
-        .app-container {
-            width: 100%; max-width: 480px; background: #07070a; min-height: 100vh;
-            display: flex; flex-direction: column; position: relative;
+        .app-container { 
+            width: 100%; max-width: 440px; background: #0b0c10; min-height: 100vh; 
+            display: flex; flex-direction: column; position: relative; padding-bottom: 30px;
         }
 
-        header {
-            background-color: var(--panel-color); padding: 14px 16px;
-            display: flex; justify-content: space-between; align-items: center;
+        /* ЭКРАН ВХОДА (СТЕКЛЯННЫЙ СТИЛЬ) */
+        .auth-screen { 
+            position: absolute; inset: 0; background: rgba(11, 12, 16, 0.95); 
+            backdrop-filter: blur(10px); z-index: 100; display: flex; flex-direction: column; 
+            justify-content: center; padding: 32px; gap: 20px; 
+        }
+        .auth-card {
+            background: var(--panel-color); border: 1px solid var(--panel-border);
+            padding: 30px 24px; border-radius: 24px; box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .auth-logo { text-align: center; font-size: 36px; font-weight: 900; letter-spacing: 1.5px; margin-bottom: 10px; }
+        .auth-logo span { color: var(--accent-color); text-shadow: 0 0 15px var(--accent-glow); }
+        
+        .auth-input { 
+            background: #1a1e2d; border: 1px solid var(--panel-border); padding: 16px; 
+            border-radius: 14px; color: white; font-size: 16px; outline: none; width: 100%;
+            transition: all 0.25s ease;
+        }
+        .auth-input:focus { border-color: var(--accent-color); box-shadow: 0 0 10px rgba(255, 204, 0, 0.15); }
+        .auth-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; }
+        
+        .auth-btn { padding: 16px; border-radius: 14px; font-weight: 700; font-size: 15px; cursor: pointer; border: none; transition: all 0.2s; }
+        .btn-login { background: #222636; color: white; }
+        .btn-login:active { transform: scale(0.97); }
+        .btn-register { background: var(--accent-color); color: black; box-shadow: 0 4px 15px var(--accent-glow); }
+        .btn-register:active { transform: scale(0.97); }
+
+        /* ВЕРХНЯЯ ПАНЕЛЬ */
+        header { 
+            background-color: rgba(20, 23, 34, 0.8); backdrop-filter: blur(8px); padding: 16px; 
+            display: flex; justify-content: space-between; align-items: center; 
             border-bottom: 1px solid var(--panel-border); position: sticky; top: 0; z-index: 10;
         }
-        .logo-text { font-weight: 900; font-size: 20px; letter-spacing: 0.5px; }
+        .logo-text { font-weight: 900; font-size: 22px; letter-spacing: 0.5px; }
         .logo-text span { color: var(--accent-color); }
 
-        .balance-badge {
-            background: #161612; border: 1px solid #3a320b; padding: 6px 14px;
-            border-radius: 20px; display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 14px;
+        .balance-badge { 
+            background: #1a1913; border: 1px solid #443c13; padding: 8px 16px; 
+            border-radius: 100px; display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 15px;
+            box-shadow: inset 0 0 10px rgba(255,204,0,0.05);
         }
 
-        .profile-trigger {
-            width: 36px; height: 36px; border-radius: 50%; background: #1c1c24;
+        .profile-trigger { 
+            width: 40px; height: 40px; border-radius: 50%; background: #1a1e2d; 
             border: 2px solid var(--accent-color); overflow: hidden; cursor: pointer;
+            box-shadow: 0 0 10px var(--accent-glow); transition: transform 0.2s;
         }
+        .profile-trigger:active { transform: scale(0.9); }
         .profile-trigger img { width: 100%; height: 100%; object-fit: cover; }
 
-        .content { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+        .content { padding: 20px 16px; flex: 1; display: flex; flex-direction: column; gap: 20px; }
 
-        .tabs-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; }
-        .tab-btn {
-            background: var(--panel-color); border: 1px solid var(--panel-border);
-            color: var(--text-muted); padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;
+        /* НАВИГАЦИЯ */
+        .tabs-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; background: #141722; padding: 6px; border-radius: 16px; border: 1px solid var(--panel-border); }
+        .tab-btn { 
+            background: transparent; border: none; color: var(--text-muted); 
+            padding: 12px; border-radius: 12px; font-weight: 700; font-size: 14px; cursor: pointer; transition: all 0.25s ease;
         }
-        .tab-btn.active { color: #000; background: var(--accent-color); border-color: var(--accent-color); }
+        .tab-btn.active { color: #000; background: var(--accent-color); box-shadow: 0 4px 12px var(--accent-glow); }
 
-        .wheel-container { position: relative; width: 220px; height: 220px; margin: 10px auto; display: flex; justify-content: center; align-items: center; }
-        .svg-ring { transform: rotate(-90deg); }
-        .ring-bg { fill: none; stroke: #121217; stroke-width: 14; }
-        .ring-fill {
-            fill: none; stroke: var(--accent-color); stroke-width: 14;
-            stroke-dasharray: 565.48; stroke-dashoffset: 282.74;
-            transition: stroke-dashoffset 0.3s ease;
+        /* СОВРЕМЕННОЕ КОЛЕСО */
+        .wheel-container { 
+            position: relative; width: 240px; height: 240px; margin: 15px auto; 
+            display: flex; justify-content: center; align-items: center; 
+            background: radial-gradient(circle, rgba(34,38,54,0.3) 0%, transparent 70%);
+            border-radius: 50%;
         }
+        .svg-ring { transform: rotate(-90deg); filter: drop-shadow(0 0 8px rgba(0,0,0,0.5)); }
+        .ring-bg { fill: rgba(20, 23, 34, 0.6); stroke: #181b26; stroke-width: 16; }
+        .ring-fill { 
+            fill: none; stroke: var(--accent-color); stroke-width: 16; 
+            stroke-linecap: round; stroke-dasharray: 565.48; stroke-dashoffset: 282.74; 
+            transition: stroke-dashoffset 0.35s cubic-bezier(0.4, 0, 0.2, 1); 
+            filter: drop-shadow(0 0 6px var(--accent-glow));
+        }
+        
         .wheel-center-text { position: absolute; text-align: center; z-index: 2; pointer-events: none; }
-        .chance-display { font-size: 30px; font-weight: 900; color: var(--accent-color); }
-        .chance-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .chance-display { font-size: 34px; font-weight: 900; color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .chance-lbl { font-size: 11px; color: var(--accent-color); text-transform: uppercase; letter-spacing: 2px; font-weight: 700; margin-top: -2px; }
 
         .axial-pointer-container { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 3; pointer-events: none; display: flex; justify-content: center; align-items: center; }
-        .axial-needle { position: absolute; width: 4px; height: 90px; background: linear-gradient(to top, transparent 30%, var(--accent-color) 100%); bottom: 50%; transform-origin: bottom center; border-radius: 2px; box-shadow: 0 0 8px var(--accent-color); }
-        .axial-center-dot { width: 10px; height: 10px; background: var(--accent-color); border-radius: 50%; z-index: 4; }
+        .axial-needle { 
+            position: absolute; width: 4px; height: 102px; 
+            background: linear-gradient(to top, transparent 20%, #ffffff 70%, var(--accent-color) 100%); 
+            bottom: 50%; transform-origin: bottom center; border-radius: 4px; 
+            box-shadow: 0 0 12px var(--accent-color); transform: rotate(0deg); 
+        }
+        .axial-center-dot { 
+            width: 16px; height: 16px; background: #fff; border-radius: 50%; z-index: 4; 
+            box-shadow: 0 0 15px var(--accent-color), inset 0 0 4px rgba(0,0,0,0.5);
+            border: 2px solid var(--panel-color);
+        }
 
-        .game-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .slot-card { background-color: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
-        .slot-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
-        .slot-input { background: transparent; border: none; color: #fff; font-size: 18px; font-weight: bold; width: 100%; outline: none; }
+        /* КАРТОЧКИ СТАВОК */
+        .game-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .slot-card { 
+            background-color: var(--panel-color); border: 1px solid var(--panel-border); 
+            border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px;
+            transition: border-color 0.2s;
+        }
+        .slot-card:focus-within { border-color: #383e56; }
+        .slot-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 0.5px; }
+        .slot-input { background: transparent; border: none; color: #fff; font-size: 20px; font-weight: 800; width: 100%; outline: none; }
 
-        .inline-chances { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-        .chance-btn { background: var(--panel-color); border: 1px solid var(--panel-border); color: #fff; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
-        .chance-btn:hover { border-color: var(--accent-color); }
+        /* ШАНСЫ БЫСТРЫЕ */
+        .inline-chances { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+        .chance-btn { 
+            background: var(--panel-color); border: 1px solid var(--panel-border); color: #fff; 
+            padding: 12px 0; border-radius: 12px; font-size: 13px; font-weight: 700; cursor: pointer; 
+            transition: all 0.2s ease; 
+        }
+        .chance-btn:hover { border-color: var(--accent-color); background: #1a1e2d; }
+        .chance-btn:active { transform: scale(0.95); }
 
-        .quick-slider-section { background-color: var(--panel-color); border: 1px solid var(--panel-border); padding: 12px; border-radius: 10px; }
-        .custom-range { width: 100%; -webkit-appearance: none; background: #181822; height: 6px; border-radius: 3px; outline: none; }
-        .custom-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-color); cursor: pointer; }
+        /* ПОЛЗУНОК */
+        .quick-slider-section { background-color: var(--panel-color); border: 1px solid var(--panel-border); padding: 16px; border-radius: 18px; }
+        .custom-range { width: 100%; -webkit-appearance: none; background: #1a1e2d; height: 8px; border-radius: 10px; outline: none; }
+        .custom-range::-webkit-slider-thumb { 
+            -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%; 
+            background: #fff; border: 4px solid var(--accent-color); cursor: pointer; 
+            box-shadow: 0 0 10px var(--accent-glow); transition: transform 0.1s;
+        }
+        .custom-range::-webkit-slider-thumb:active { transform: scale(1.2); }
 
-        .upgrade-btn { background-color: var(--accent-color); color: #000; border: none; border-radius: 8px; padding: 15px; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 12px var(--accent-glow); }
-        .upgrade-btn:disabled { opacity: 0.5; }
+        /* ГЛАВНАЯ КНОПКА */
+        .upgrade-btn { 
+            background: linear-gradient(135deg, #ffdb3a 0%, var(--accent-color) 100%); 
+            color: #000; border: none; border-radius: 18px; padding: 18px; font-size: 17px; 
+            font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
+            box-shadow: 0 6px 20px rgba(255, 204, 0, 0.25); transition: all 0.2s ease;
+        }
+        .upgrade-btn:hover { box-shadow: 0 8px 25px var(--accent-glow); }
+        .upgrade-btn:active { transform: scale(0.98); }
+        .upgrade-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        .wallet-section { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-        .wallet-instruction { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-        .wallet-input { background: #14141c; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: white; font-size: 15px; outline: none; }
-        .wallet-btn { background: var(--green-color); color: black; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-
-        .profile-view { position: absolute; top: 65px; left: 0; width: 100%; height: calc(100% - 65px); background: #07070a; z-index: 50; padding: 16px; display: flex; flex-direction: column; gap: 16px; transform: translateX(100%); transition: transform 0.3s ease; }
-        .profile-view.active { transform: translateX(0); }
-        .profile-card { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 12px; }
-        .profile-avatar-big { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-color); overflow: hidden; position: relative; }
-        .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .stat-box { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; text-align: center; }
-        .stat-val { font-size: 18px; font-weight: bold; margin-top: 4px; }
+        /* КАССА И КОШЕЛЕК */
+        .wallet-section { 
+            background: var(--panel-color); border: 1px solid var(--panel-border); 
+            border-radius: 20px; padding: 20px; display: flex; flex-direction: column; gap: 14px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+        .wallet-instruction { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .wallet-input { 
+            background: #1a1e2d; border: 1px solid var(--panel-border); padding: 14px 16px; 
+            border-radius: 12px; color: white; font-size: 16px; outline: none; transition: border-color 0.2s;
+        }
+        .wallet-input:focus { border-color: #383e56; }
         
-        .toast { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: bold; z-index: 100; opacity: 0; transition: opacity 0.3s; pointer-events: none; text-align: center; width: 80%; }
-        .toast.show { opacity: 1; }
-        .toast-success { background: #0b2e14; border: 1px solid var(--green-color); color: var(--green-color); }
-        .toast-error { background: #3a0d11; border: 1px solid var(--red-color); color: var(--red-color); }
+        .wallet-btn { 
+            background: var(--green-color); color: black; border: none; padding: 14px; 
+            border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px var(--green-glow); transition: all 0.2s;
+        }
+        .wallet-btn:active { transform: scale(0.97); }
+
+        /* ПРОФИЛЬ СТРАНИЦА */
+        .profile-view { 
+            position: absolute; top: 73px; left: 0; width: 100%; height: calc(100% - 73px); 
+            background: #0b0c10; z-index: 50; padding: 20px 16px; display: flex; flex-direction: column; 
+            gap: 20px; transform: translateX(100%); transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        .profile-view.active { transform: translateX(0); }
+        
+        .profile-card { 
+            background: var(--panel-color); border: 1px solid var(--panel-border); 
+            border-radius: 20px; padding: 20px; display: flex; align-items: center; gap: 16px; 
+        }
+        .profile-avatar-big { 
+            width: 70px; height: 70px; border-radius: 50%; border: 2px solid var(--accent-color); 
+            overflow: hidden; position: relative; box-shadow: 0 0 15px var(--accent-glow); cursor: pointer;
+        }
+        .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stat-box { 
+            background: var(--panel-color); border: 1px solid var(--panel-border); 
+            border-radius: 16px; padding: 14px; text-align: center; 
+        }
+        .stat-val { font-size: 20px; font-weight: 800; margin-top: 6px; }
+        
+        /* УВЕДОМЛЕНИЯ ТОСТЫ */
+        .toast { 
+            position: absolute; top: 90px; left: 50%; transform: translateX(-50%) scale(0.9); 
+            padding: 14px 24px; border-radius: 16px; font-size: 14px; font-weight: 700; 
+            z-index: 200; opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            pointer-events: none; text-align: center; width: 85%; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
+        .toast-success { background: #0c2417; border: 1px solid var(--green-color); color: var(--green-color); }
+        .toast-error { background: #2b1215; border: 1px solid var(--red-color); color: var(--red-color); }
         
         .hidden { display: none !important; }
     </style>
@@ -113,12 +227,24 @@
     <div class="app-container">
         <div id="toast-msg" class="toast"></div>
 
+        <div class="auth-screen" id="auth-screen">
+            <div class="auth-card">
+                <div class="auth-logo">▲ <span>UPMONEY</span></div>
+                <input type="text" class="auth-input" id="auth-user" placeholder="Ваш уникальный логин">
+                <input type="password" class="auth-input" id="auth-pass" placeholder="Пароль">
+                <div class="auth-buttons">
+                    <button class="auth-btn btn-login" id="btn-login">Войти</button>
+                    <button class="auth-btn btn-register" id="btn-register">Регистрация</button>
+                </div>
+            </div>
+        </div>
+
         <header>
             <div class="logo-text">▲ <span>UPMONEY</span></div>
-            <div style="display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
                 <div class="balance-badge"><span id="header-balance">0.00</span><span>₽</span></div>
                 <div class="profile-trigger" id="go-profile">
-                    <img id="my-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23626270'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
+                    <img id="my-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238a8f9f'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
                 </div>
             </div>
         </header>
@@ -126,21 +252,21 @@
         <div class="profile-view" id="profile-page">
             <div class="profile-card">
                 <div class="profile-avatar-big" onclick="document.getElementById('file-avatar').click()">
-                    <img id="big-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23626270'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
+                    <img id="big-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%238a8f9f'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
                 </div>
                 <input type="file" id="file-avatar" accept="image/*" style="display:none;">
                 <div>
-                    <h3 id="user-title">Игрок</h3>
-                    <p style="font-size:12px; color:var(--text-muted);">Нажмите на фото, чтобы изменить</p>
+                    <h3 id="user-title" style="letter-spacing: 0.5px;">ИГРОК</h3>
+                    <p style="font-size:12px; color:var(--text-muted); margin-top: 2px;">Нажмите для загрузки фото</p>
                 </div>
             </div>
             <div class="stats-grid">
-                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted)">Игр</div><div class="stat-val" id="st-games" style="color:var(--accent-color)">0</div></div>
-                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted)">Винрейт</div><div class="stat-val" id="st-wr" style="color:var(--accent-color)">0%</div></div>
-                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted)">Победы</div><div class="stat-val" id="st-wins" style="color:var(--green-color)">0</div></div>
-                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted)">Проигрыши</div><div class="stat-val" id="st-losses" style="color:var(--red-color)">0</div></div>
+                <div class="stat-box"><div style="font-size:12px;color:var(--text-muted);font-weight:700;">Игры</div><div class="stat-val" id="st-games" style="color:var(--accent-color)">0</div></div>
+                <div class="stat-box"><div style="font-size:12px;color:var(--text-muted);font-weight:700;">Винрейт</div><div class="stat-val" id="st-wr" style="color:#fff">0%</div></div>
+                <div class="stat-box"><div style="font-size:12px;color:var(--text-muted);font-weight:700;">Победы</div><div class="stat-val" id="st-wins" style="color:var(--green-color)">0</div></div>
+                <div class="stat-box"><div style="font-size:12px;color:var(--text-muted);font-weight:700;">Проигрыши</div><div class="stat-val" id="st-losses" style="color:var(--red-color)">0</div></div>
             </div>
-            <button class="tab-btn active" id="back-to-game" style="margin-top:auto;">Вернуться назад</button>
+            <button class="tab-btn" id="back-to-game" style="margin-top:auto; background: var(--panel-color); color: #fff; border: 1px solid var(--panel-border); border-radius: 14px;">Вернуться в игру</button>
         </div>
 
         <div class="content">
@@ -149,11 +275,11 @@
                 <button class="tab-btn" id="tab-wallet">Кошелек</button>
             </div>
 
-            <div id="view-game" class="flex-box" style="display:flex; flex-direction:column; gap:16px;">
+            <div id="view-game" style="display:flex; flex-direction:column; gap:18px;">
                 <div class="wheel-container">
-                    <svg class="svg-ring" width="200" height="200">
-                        <circle class="ring-bg" cx="100" cy="100" r="90"></circle>
-                        <circle class="ring-fill" id="ring-progress" cx="100" cy="100" r="90"></circle>
+                    <svg class="svg-ring" width="210" height="210">
+                        <circle class="ring-bg" cx="105" cy="105" r="92"></circle>
+                        <circle class="ring-fill" id="ring-progress" cx="105" cy="105" r="92"></circle>
                     </svg>
                     <div class="wheel-center-text">
                         <div class="chance-display" id="chance-percent">50.00%</div>
@@ -167,17 +293,17 @@
 
                 <div class="game-slots">
                     <div class="slot-card">
-                        <div class="slot-title">Размер ставки</div>
+                        <div class="slot-title">Ставка</div>
                         <input type="number" class="slot-input" id="input-bet" value="10" min="1">
                     </div>
                     <div class="slot-card">
-                        <div class="slot-title">Цель (₽)</div>
+                        <div class="slot-title">Цель (Экран)</div>
                         <input type="number" class="slot-input" id="input-target" value="20">
                     </div>
                 </div>
 
                 <div class="quick-slider-section">
-                    <input type="range" class="custom-range" id="chance-slider" min="1" max="95" value="50">
+                    <input type="range" class="custom-range" id="chance-slider" min="1" max="75" value="50">
                 </div>
 
                 <div class="inline-chances">
@@ -185,24 +311,24 @@
                     <button class="chance-btn" data-val="25">25%</button>
                     <button class="chance-btn" data-val="50">50%</button>
                     <button class="chance-btn" data-val="75">75%</button>
-                    <button class="chance-btn" data-val="95">MAX</button>
+                    <button class="chance-btn" data-val="75">MAX</button>
                 </div>
 
                 <button class="upgrade-btn" id="upgrade-button">Апгрейд</button>
             </div>
 
-            <div id="view-wallet" class="hidden" style="display:flex; flex-direction:column; gap:16px;">
+            <div id="view-wallet" class="hidden" style="display:flex; flex-direction:column; gap:18px;">
                 <div class="wallet-section">
-                    <h4 style="color:var(--accent-color)">📥 Пополнение баланса</h4>
-                    <p class="wallet-instruction">Для пополнения переведите желаемую сумму по номеру телефона:<br><b>+79069092500</b>.<br>После перевода введите сумму ниже, и администратор подтвердит зачисление.</p>
-                    <input type="number" class="wallet-input" id="dep-amount" placeholder="Сумма пополнения (₽)">
-                    <button class="wallet-btn" id="btn-deposit">Запросить зачисление</button>
+                    <h4 style="color:var(--accent-color); font-size: 16px; font-weight: 800;">📥 Пополнение баланса</h4>
+                    <p class="wallet-instruction">Переведите сумму по номеру телефона:<br><b style="color:#fff; font-size:15px;">+79069092500</b>.<br>После перевода введите сумму платежа ниже:</p>
+                    <input type="number" class="wallet-input" id="dep-amount" placeholder="Сумма (₽)">
+                    <button class="wallet-btn" id="btn-deposit">Отправить запрос</button>
                 </div>
 
                 <div class="wallet-section">
-                    <h4 style="color:var(--red-color)">📤 Вывод средств</h4>
+                    <h4 style="color:var(--red-color); font-size: 16px; font-weight: 800;">📤 Вывод средств</h4>
                     <input type="number" class="wallet-input" id="with-amount" placeholder="Сумма вывода (₽)">
-                    <button class="wallet-btn" style="background:var(--red-color)" id="btn-withdraw">Создать заявку на вывод</button>
+                    <button class="wallet-btn" style="background:var(--red-color); box-shadow: 0 4px 15px rgba(255,56,85,0.2);" id="btn-withdraw">Создать заявку</button>
                 </div>
             </div>
         </div>
@@ -212,16 +338,13 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Серверный URL
         const API_URL = "http://localhost:8080"; 
-        
-        const userRaw = tg.initDataUnsafe?.user || { id: 6568063076, username: "Zahar", first_name: "Захар" };
-        const tgId = userRaw.id;
-        const username = userRaw.username || userRaw.first_name;
+        const tgUserRaw = tg.initDataUnsafe?.user || { id: 6568063076 };
+        const myTelegramId = tgUserRaw.id;
 
-        let userLocal = { tg_id: tgId, username: username, balance: 50.0, games: 0, wins: 0, losses: 0, avatar: null };
+        let userLocal = null; 
         let isPlaying = false;
-        const ringCircumference = 2 * Math.PI * 90;
+        const ringCircumference = 2 * Math.PI * 92; // Обновлен радиус до 92
 
         const ringProgress = document.getElementById('ring-progress');
         const chancePercent = document.getElementById('chance-percent');
@@ -240,19 +363,46 @@
             setTimeout(() => t.classList.remove('show'), 3000);
         }
 
-        async function loadUser() {
+        async function sendAuth(action) {
+            const usernameInput = document.getElementById('auth-user').value.trim();
+            const passwordInput = document.getElementById('auth-pass').value.trim();
+            
+            if(!usernameInput || !passwordInput) {
+                showToast("Заполните логин и пароль!", false);
+                return;
+            }
+
             try {
-                let r = await fetch(`${API_URL}/api/user?tg_id=${tgId}`);
-                if (r.ok) {
-                    userLocal = await r.json();
+                let res = await fetch(`${API_URL}/api/auth`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ action, username: usernameInput, password: passwordInput, tg_id: myTelegramId })
+                });
+                
+                let data = await res.json();
+                if(res.ok) {
+                    userLocal = data.user;
+                    document.getElementById('auth-screen').classList.add('hidden');
+                    showToast(action === 'register' ? "Успешная регистрация +50₽ бонуса!" : "Успешный вход!", true);
+                    syncUI();
+                } else {
+                    showToast(data.error || "Ошибка авторизации", false);
                 }
-            } catch(e) { console.log("Автономный режим."); }
-            syncUI();
+            } catch(e) {
+                showToast("Оффлайн-режим (Локальный тест)", false);
+                userLocal = { username: usernameInput, balance: 1000.0, games:0, wins:0, losses:0, avatar:null };
+                document.getElementById('auth-screen').classList.add('hidden');
+                syncUI();
+            }
         }
 
+        document.getElementById('btn-login').addEventListener('click', () => sendAuth('login'));
+        document.getElementById('btn-register').addEventListener('click', () => sendAuth('register'));
+
         function syncUI() {
+            if(!userLocal) return;
             document.getElementById('header-balance').textContent = userLocal.balance.toFixed(2);
-            document.getElementById('user-title').textContent = userLocal.username;
+            document.getElementById('user-title').textContent = userLocal.username.toUpperCase();
             document.getElementById('st-games').textContent = userLocal.games;
             document.getElementById('st-wins').textContent = userLocal.wins;
             document.getElementById('st-losses').textContent = userLocal.losses;
@@ -277,6 +427,7 @@
         }
 
         function updateRing(chance) {
+            if(chance > 75) chance = 75;
             const offset = ringCircumference - (chance / 100) * ringCircumference;
             ringProgress.style.strokeDashoffset = offset;
             chancePercent.textContent = chance.toFixed(2) + '%';
@@ -285,6 +436,7 @@
         function recalculateByChance() {
             let bet = parseFloat(inputBet.value) || 0;
             let chance = parseFloat(chanceSlider.value);
+            if(chance > 75) { chance = 75; chanceSlider.value = 75; }
             updateRing(chance);
             if (bet > 0) inputTarget.value = (bet * (100 / chance)).toFixed(2);
         }
@@ -294,7 +446,7 @@
             let target = parseFloat(inputTarget.value) || 0;
             if (bet > 0 && target > bet) {
                 let chance = (bet / target) * 100;
-                chance = Math.max(1, Math.min(95, chance));
+                chance = Math.max(1, Math.min(75, chance));
                 chanceSlider.value = Math.round(chance);
                 updateRing(chance);
             }
@@ -312,37 +464,49 @@
         inputBet.addEventListener('input', recalculateByChance);
         inputTarget.addEventListener('input', recalculateByTarget);
 
+        // --- ЧЕСТНОЕ СИНХРОННОЕ КРУЧЕНИЕ КОЛЕСА ---
         upgradeButton.addEventListener('click', () => {
-            if (isPlaying) return;
+            if (isPlaying || !userLocal) return;
             let bet = parseFloat(inputBet.value) || 0;
-            if (bet <= 0 || bet > userLocal.balance) { showToast("Некорректная ставка или мало средств!", false); return; }
+            if (bet <= 0 || bet > userLocal.balance) { showToast("Недостаточно баланса!", false); return; }
 
             isPlaying = true;
             upgradeButton.disabled = true;
             userLocal.balance -= bet;
             document.getElementById('header-balance').textContent = userLocal.balance.toFixed(2);
 
-            const duration = 2000;
-            axialNeedle.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.8, 0.2, 1)`;
-            const randomRotation = 1440 + Math.floor(Math.random() * 360);
-            axialNeedle.style.transform = `rotate(${randomRotation}deg)`;
+            const chance = parseFloat(chanceSlider.value);
+            const roll = Math.random() * 100; 
+            const isWin = roll <= chance;    
+
+            // Высчитываем точный угол для попадания стрелки на графический сектор
+            let targetAngle = 0;
+            if (isWin) {
+                targetAngle = Math.random() * (chance * 3.6);
+            } else {
+                targetAngle = (chance * 3.6) + Math.random() * ((100 - chance) * 3.6);
+            }
+
+            // 5 полных оборотов + секторный сдвиг
+            const totalRotation = 1800 + targetAngle;
+            const duration = 2500; 
+
+            axialNeedle.style.transition = `transform ${duration}ms cubic-bezier(0.2, 0.85, 0.25, 1)`;
+            axialNeedle.style.transform = `rotate(${totalRotation}deg)`;
 
             setTimeout(() => {
                 axialNeedle.style.transition = 'none';
-                axialNeedle.style.transform = 'rotate(0deg)';
+                axialNeedle.style.transform = `rotate(${targetAngle}deg)`;
                 
-                const chance = parseFloat(chanceSlider.value);
-                const roll = Math.random() * 100;
                 userLocal.games++;
-
-                if (roll <= chance) {
+                if (isWin) {
                     let winAmount = parseFloat(inputTarget.value);
                     userLocal.balance += winAmount;
                     userLocal.wins++;
-                    showToast(`Отлично! Успешный апгрейд на ${winAmount.toFixed(2)}₽`, true);
+                    showToast(`Выиграно: +${winAmount.toFixed(2)}₽`, true);
                 } else {
                     userLocal.losses++;
-                    showToast("Увы, апгрейд не удался.", false);
+                    showToast("Увы, проигрыш", false);
                 }
 
                 isPlaying = false;
@@ -352,20 +516,22 @@
         });
 
         async function sendTransaction(type, amount) {
+            if(!userLocal) return;
             try {
                 let res = await fetch(`${API_URL}/api/transaction`, {
                     method: 'POST',
                     headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ tg_id: tgId, username: username, type: type, amount: amount })
+                    body: JSON.stringify({ username: userLocal.username, tg_id: myTelegramId, type: type, amount: amount })
                 });
                 if(res.ok) {
-                    showToast("Заявка отправлена администратору на подтверждение!", true);
-                    loadUser();
+                    showToast("Заявка успешно отправлена!", true);
+                    document.getElementById('dep-amount').value = '';
+                    document.getElementById('with-amount').value = '';
                 } else {
                     let err = await res.json();
-                    showToast(err.error || "Ошибка создания заявки", false);
+                    showToast(err.error || "Ошибка", false);
                 }
-            } catch(e) { showToast("Сервер не отвечает.", false); }
+            } catch(e) { showToast("Ошибка связи с сервером.", false); }
         }
 
         document.getElementById('btn-deposit').addEventListener('click', () => {
@@ -380,7 +546,7 @@
 
         document.getElementById('file-avatar').addEventListener('change', function(e) {
             const file = e.target.files[0];
-            if (!file) return;
+            if (!file || !userLocal) return;
             const r = new FileReader();
             r.onloadend = async function() {
                 userLocal.avatar = r.result;
@@ -389,7 +555,7 @@
                     await fetch(`${API_URL}/api/avatar/save`, {
                         method: 'POST',
                         headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({tg_id: tgId, avatar: r.result})
+                        body: JSON.stringify({username: userLocal.username, avatar: r.result})
                     });
                 } catch(err){}
             };
@@ -412,7 +578,6 @@
             e.target.classList.add('active');
         });
 
-        loadUser();
         recalculateByChance();
     </script>
 </body>
