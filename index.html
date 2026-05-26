@@ -2,380 +2,432 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Upgrader Mini App</title>
-    <!-- Подключаем скрипт Telegram Web App -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UPMONEY Mini App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Цветовая палитра и базовые настройки */
-        :root { 
-            --bg: #0f0f13; 
-            --panel: #1c1c24; 
-            --accent: #007aff; 
-            --win: #32d74b; 
-            --lose: #ff453a; 
-            --text: #ffffff; 
-        }
-        
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
-            overflow: hidden; /* Запрещаем скролл страницы */
-        }
-        
-        /* Шапка с профилем */
-        .header { 
-            background: var(--panel); 
-            padding: 15px 20px; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            border-bottom: 1px solid rgba(255,255,255,0.05); 
-        }
-        .user-info { font-size: 16px; font-weight: 500; }
-        .balance-container { cursor: pointer; display: flex; align-items: center; gap: 5px; }
-        .balance { font-size: 20px; font-weight: 700; color: #ffd60a; }
-        .add-btn { background: rgba(255, 214, 10, 0.2); color: #ffd60a; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: bold; }
-        
-        .container { padding: 20px; text-align: center; }
-        
-        /* Колесо апгрейдов */
-        .wheel-box { 
-            position: relative; 
-            width: 240px; 
-            height: 240px; 
-            margin: 30px auto; 
-            border-radius: 50%; 
-            box-shadow: 0 0 40px rgba(0,0,0,0.5); 
-        }
-        .wheel { 
-            width: 100%; 
-            height: 100%; 
-            border-radius: 50%; 
-            background: conic-gradient(var(--win) 0% 50%, var(--panel) 50% 100%); 
-            transition: transform 4s cubic-bezier(0.15, 0.9, 0.25, 1); 
-            border: 4px solid #2c2c35; 
-        }
-        .pointer { 
-            position: absolute; 
-            top: -15px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 0; 
-            height: 0; 
-            border-left: 15px solid transparent; 
-            border-right: 15px solid transparent; 
-            border-top: 25px solid #ffffff; 
-            z-index: 10; 
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); 
-        }
-        .center-dot { 
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
-            transform: translate(-50%, -50%); 
-            width: 40px; 
-            height: 40px; 
-            background: #2c2c35; 
-            border-radius: 50%; 
-            border: 3px solid #ffffff; 
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 12px;
-            color: #888;
+        :root {
+            --bg-color: #07070a;
+            --panel-color: #0f0f14;
+            --panel-border: #1b1b22;
+            --accent-color: #ffcc00;
+            --accent-glow: rgba(255, 204, 0, 0.25);
+            --text-color: #ffffff;
+            --text-muted: #626270;
+            --green-color: #00ff66;
+            --red-color: #ff3344;
         }
 
-        /* Панель управления */
-        .controls { background: var(--panel); padding: 20px; border-radius: 20px; margin-top: 20px; }
-        .controls-title { margin-bottom: 15px; font-size: 12px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
-        
-        .chances { display: flex; justify-content: space-between; margin-bottom: 20px; }
-        .chance-btn { 
-            flex: 1; 
-            background: rgba(255,255,255,0.05); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            color: var(--text); 
-            padding: 12px 0; 
-            margin: 0 5px; 
-            border-radius: 12px; 
-            font-weight: 600; 
-            font-size: 16px;
-            cursor: pointer; 
-            transition: 0.2s; 
-        }
-        .chance-btn.active { background: var(--accent); border-color: var(--accent); box-shadow: 0 4px 15px rgba(0, 122, 255, 0.3); }
-        
-        input { 
-            width: 100%; 
-            background: rgba(0,0,0,0.3); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            color: #ffffff; 
-            padding: 15px; 
-            border-radius: 12px; 
-            font-size: 16px; 
-            text-align: center; 
-            margin-bottom: 15px; 
-            outline: none;
-        }
-        input:focus { border-color: var(--accent); }
-        
-        .play-btn { 
-            width: 100%; 
-            background: linear-gradient(135deg, #007aff, #0056b3); 
-            border: none; 
-            color: white; 
-            padding: 18px; 
-            border-radius: 12px; 
-            font-size: 18px; 
-            font-weight: bold; 
-            cursor: pointer; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            transition: 0.2s;
-        }
-        .play-btn:active { transform: scale(0.98); }
-        .play-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-color); display: flex; justify-content: center; min-height: 100vh; overflow-x: hidden; }
 
-        /* Модальное окно пополнения */
-        .modal { 
-            display: none; 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.85); 
-            z-index: 100; 
-            align-items: center; 
-            justify-content: center; 
-            backdrop-filter: blur(5px);
+        .app-container {
+            width: 100%; max-width: 480px; background: #07070a; min-height: 100vh;
+            display: flex; flex-direction: column; position: relative;
         }
-        .modal-content { background: var(--panel); padding: 30px 25px; border-radius: 24px; width: 90%; max-width: 350px; text-align: center; }
-        .modal h3 { margin-bottom: 10px; font-size: 20px; }
-        .modal p { margin: 15px 0; font-size: 14px; color: #aaa; line-height: 1.5; }
-        .modal-phone { display: inline-block; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 10px; color: #fff; font-size: 20px; font-weight: bold; margin: 10px 0; letter-spacing: 1px; }
+
+        header {
+            background-color: var(--panel-color); padding: 14px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--panel-border); position: sticky; top: 0; z-index: 10;
+        }
+        .logo-text { font-weight: 900; font-size: 20px; letter-spacing: 0.5px; }
+        .logo-text span { color: var(--accent-color); }
+
+        .balance-badge {
+            background: #161612; border: 1px solid #3a320b; padding: 6px 14px;
+            border-radius: 20px; display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 14px;
+        }
+
+        .profile-trigger {
+            width: 36px; height: 36px; border-radius: 50%; background: #1c1c24;
+            border: 2px solid var(--accent-color); overflow: hidden; cursor: pointer;
+        }
+        .profile-trigger img { width: 100%; height: 100%; object-fit: cover; }
+
+        .content { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+        /* Вкладочные элементы */
+        .tabs-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; }
+        .tab-btn {
+            background: var(--panel-color); border: 1px solid var(--panel-border);
+            color: var(--text-muted); padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer;
+        }
+        .tab-btn.active { color: #000; background: var(--accent-color); border-color: var(--accent-color); }
+
+        /* Колесо с осевой стрелкой */
+        .wheel-container { position: relative; width: 220px; height: 220px; margin: 10px auto; display: flex; justify-content: center; align-items: center; }
+        .svg-ring { transform: rotate(-90deg); }
+        .ring-bg { fill: none; stroke: #121217; stroke-width: 14; }
+        .ring-fill {
+            fill: none; stroke: var(--accent-color); stroke-width: 14;
+            stroke-dasharray: 565.48; stroke-dashoffset: 282.74;
+            transition: stroke-dashoffset 0.3s ease;
+        }
+        .wheel-center-text { position: absolute; text-align: center; z-index: 2; pointer-events: none; }
+        .chance-display { font-size: 30px; font-weight: 900; color: var(--accent-color); }
+        .chance-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        .axial-pointer-container { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 3; pointer-events: none; display: flex; justify-content: center; align-items: center; }
+        .axial-needle { position: absolute; width: 4px; height: 90px; background: linear-gradient(to top, transparent 30%, var(--accent-color) 100%); bottom: 50%; transform-origin: bottom center; border-radius: 2px; box-shadow: 0 0 8px var(--accent-color); }
+        .axial-center-dot { width: 10px; height: 10px; background: var(--accent-color); border-radius: 50%; z-index: 4; }
+
+        /* Слоты */
+        .game-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .slot-card { background-color: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+        .slot-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
+        .slot-input { background: transparent; border: none; color: #fff; font-size: 18px; font-weight: bold; width: 100%; outline: none; }
+
+        /* Кнопки Быстрого Шанса */
+        .inline-chances { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        .chance-btn { background: var(--panel-color); border: 1px solid var(--panel-border); color: #fff; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+        .chance-btn:hover { border-color: var(--accent-color); }
+
+        .quick-slider-section { background-color: var(--panel-color); border: 1px solid var(--panel-border); padding: 12px; border-radius: 10px; }
+        .custom-range { width: 100%; -webkit-appearance: none; background: #181822; height: 6px; border-radius: 3px; outline: none; }
+        .custom-range::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; border-radius: 50%; background: var(--accent-color); cursor: pointer; }
+
+        .upgrade-btn { background-color: var(--accent-color); color: #000; border: none; border-radius: 8px; padding: 15px; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 12px var(--accent-glow); }
+        .upgrade-btn:disabled { opacity: 0.5; }
+
+        /* Касса (Пополнение/Вывод) */
+        .wallet-section { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+        .wallet-instruction { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+        .wallet-input { background: #14141c; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: white; font-size: 15px; outline: none; }
+        .wallet-btn { background: var(--green-color); color: black; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
+
+        /* Окно профиля */
+        .profile-view { position: absolute; top: 65px; left: 0; width: 100%; height: calc(100% - 65px); background: #07070a; z-index: 50; padding: 16px; display: flex; flex-direction: column; gap: 16px; transform: translateX(100%); transition: transform 0.3s ease; }
+        .profile-view.active { transform: translateX(0); }
+        .profile-card { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 12px; }
+        .profile-avatar-big { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-color); overflow: hidden; position: relative; }
+        .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .stat-box { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 8px; padding: 12px; text-align: center; }
+        .stat-val { font-size: 18px; font-weight: bold; margin-top: 4px; }
         
-        .modal button { width: 100%; border: none; color: white; padding: 15px; border-radius: 12px; font-size: 16px; font-weight: bold; margin-top: 10px; cursor: pointer; }
-        .btn-success { background: var(--win); }
-        .btn-cancel { background: rgba(255,255,255,0.1); color: #ccc !important; }
+        .toast { position: absolute; top: 80px; left: 50%; transform: translateX(-50%); padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: bold; z-index: 100; opacity: 0; transition: opacity 0.3s; pointer-events: none; text-align: center; width: 80%; }
+        .toast.show { opacity: 1; }
+        .toast-success { background: #0b2e14; border: 1px solid var(--green-color); color: var(--green-color); }
+        .toast-error { background: #3a0d11; border: 1px solid var(--red-color); color: var(--red-color); }
+        
+        .hidden { display: none !important; }
     </style>
 </head>
 <body>
 
-    <!-- Шапка профиля -->
-    <div class="header">
-        <div class="user-info">👤 <span id="username">Загрузка...</span></div>
-        <div class="balance-container" onclick="openDepositModal()">
-            <span class="balance" id="balance">0</span> <span style="color: #ffd60a; font-weight: bold;">₽</span>
-            <div class="add-btn">+</div>
-        </div>
-    </div>
+    <div class="app-container">
+        <div id="toast-msg" class="toast"></div>
 
-    <div class="container">
-        <!-- Блок с колесом -->
-        <div class="wheel-box">
-            <div class="pointer"></div>
-            <div class="wheel" id="wheel"></div>
-            <div class="center-dot">UP</div>
-        </div>
-
-        <!-- Панель управления -->
-        <div class="controls">
-            <div class="controls-title">Шанс успеха</div>
-            <div class="chances" id="chanceButtons">
-                <button class="chance-btn" onclick="selectChance(10)">10%</button>
-                <button class="chance-btn" onclick="selectChance(30)">30%</button>
-                <button class="chance-btn active" onclick="selectChance(50)">50%</button>
-                <button class="chance-btn" onclick="selectChance(75)">75%</button>
+        <header>
+            <div class="logo-text">▲ <span>UPMONEY</span></div>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div class="balance-badge"><span id="header-balance">0.00</span><span>₽</span></div>
+                <div class="profile-trigger" id="go-profile">
+                    <img id="my-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23626270'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
+                </div>
             </div>
-            
-            <input type="number" id="betAmount" placeholder="Сумма ставки (₽)" value="100">
-            <button class="play-btn" id="playBtn" onclick="play()">Апгрейд</button>
+        </header>
+
+        <div class="profile-view" id="profile-page">
+            <div class="profile-card">
+                <div class="profile-avatar-big" onclick="document.getElementById('file-avatar').click()">
+                    <img id="big-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23626270'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
+                </div>
+                <input type="file" id="file-avatar" accept="image/*" style="display:none;">
+                <div>
+                    <h3 id="user-title">Игрок</h3>
+                    <p style="font-size:12px; color:var(--text-muted);">Нажмите на фото, чтобы изменить</p>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted)">Игр</div><div class="stat-val" id="st-games" style="color:var(--accent-color)">0</div></div>
+                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted)">Винрейт</div><div class="stat-val" id="st-wr" style="color:var(--accent-color)">0%</div></div>
+                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted)">Победы</div><div class="stat-val" id="st-wins" style="color:var(--green-color)">0</div></div>
+                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted)">Проигрыши</div><div class="stat-val" id="st-losses" style="color:var(--red-color)">0</div></div>
+            </div>
+            <button class="tab-btn active" id="back-to-game" style="margin-top:auto;">Вернуться назад</button>
+        </div>
+
+        <div class="content">
+            <div class="tabs-menu">
+                <button class="tab-btn active" id="tab-game">Апгрейды</button>
+                <button class="tab-btn" id="tab-wallet">Кошелек</button>
+            </div>
+
+            <div id="view-game" class="flex-box" style="display:flex; flex-direction:column; gap:16px;">
+                <div class="wheel-container">
+                    <svg class="svg-ring" width="200" height="200">
+                        <circle class="ring-bg" cx="100" cy="100" r="90"></circle>
+                        <circle class="ring-fill" id="ring-progress" cx="100" cy="100" r="90"></circle>
+                    </svg>
+                    <div class="wheel-center-text">
+                        <div class="chance-display" id="chance-percent">50.00%</div>
+                        <div class="chance-lbl">шанс</div>
+                    </div>
+                    <div class="axial-pointer-container">
+                        <div class="axial-needle" id="axial-needle"></div>
+                        <div class="axial-center-dot"></div>
+                    </div>
+                </div>
+
+                <div class="game-slots">
+                    <div class="slot-card">
+                        <div class="slot-title">Размер ставки</div>
+                        <input type="number" class="slot-input" id="input-bet" value="10" min="1">
+                    </div>
+                    <div class="slot-card">
+                        <div class="slot-title">Цель (₽)</div>
+                        <input type="number" class="slot-input" id="input-target" value="20">
+                    </div>
+                </div>
+
+                <div class="quick-slider-section">
+                    <input type="range" class="custom-range" id="chance-slider" min="1" max="95" value="50">
+                </div>
+
+                <div class="inline-chances">
+                    <button class="chance-btn" data-val="10">10%</button>
+                    <button class="chance-btn" data-val="25">25%</button>
+                    <button class="chance-btn" data-val="50">50%</button>
+                    <button class="chance-btn" data-val="75">75%</button>
+                    <button class="chance-btn" data-val="95">MAX</button>
+                </div>
+
+                <button class="upgrade-btn" id="upgrade-button">Апгрейд</button>
+            </div>
+
+            <div id="view-wallet" class="hidden" style="display:flex; flex-direction:column; gap:16px;">
+                <div class="wallet-section">
+                    <h4 style="color:var(--accent-color)">📥 Пополнение баланса</h4>
+                    <p class="wallet-instruction">Для пополнения переведите желаемую сумму по номеру телефона:<br><b>+79069092500</b>.<br>После перевода введите сумму ниже, и администратор подтвердит зачисление.</p>
+                    <input type="number" class="wallet-input" id="dep-amount" placeholder="Сумма пополнения (₽)">
+                    <button class="wallet-btn" id="btn-deposit">Запросить зачисление</button>
+                </div>
+
+                <div class="wallet-section">
+                    <h4 style="color:var(--red-color)">📤 Вывод средств</h4>
+                    <input type="number" class="wallet-input" id="with-amount" placeholder="Сумма вывода (₽)">
+                    <button class="wallet-btn" style="background:var(--red-color)" id="btn-withdraw">Создать заявку на вывод</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Модальное окно пополнения -->
-    <div id="depositModal" class="modal">
-        <div class="modal-content">
-            <h3>Пополнение баланса</h3>
-            <p>
-                Переведите нужную сумму по номеру телефона (СБП):<br>
-                <span class="modal-phone">+79069092500</span><br>
-                Затем введите отправленную сумму ниже и подтвердите.
-            </p>
-            <input type="number" id="depositAmount" placeholder="Сумма перевода (₽)">
-            <button class="btn-success" onclick="requestDeposit()">Я оплатил</button>
-            <button class="btn-cancel" onclick="closeDepositModal()">Отмена</button>
-        </div>
-    </div>
-
-    <!-- Логика приложения -->
     <script>
-        // Инициализация Telegram
+        // --- ИНТЕГРАЦИЯ С TG MINI APP ---
         const tg = window.Telegram.WebApp;
         tg.expand();
-        tg.ready();
 
-        // Данные пользователя
-        const userId = tg.initDataUnsafe?.user?.id || 123456789; // Тестовый ID для браузера
-        const username = tg.initDataUnsafe?.user?.username || tg.initDataUnsafe?.user?.first_name || 'Гость';
+        // Замените на реальный URL вашего Python сервера после развертывания
+        const API_URL = "http://localhost:8080"; 
         
-        document.getElementById('username').innerText = username;
-        
-        let currentChance = 50;
-        let isSpinning = false;
-        let currentRotation = 0;
+        // Получаем реальные данные из Telegram
+        const userRaw = tg.initDataUnsafe?.user || { id: 7777777, username: "TestUser", first_name: "Локальный Тест" };
+        const tgId = userRaw.id;
+        const username = userRaw.username || userRaw.first_name;
 
-        // Загрузка баланса при входе
-        async function loadProfile() {
+        let userLocal = { tg_id: tgId, username: username, balance: 50.0, games: 0, wins: 0, losses: 0, avatar: null };
+        let isPlaying = false;
+        const ringCircumference = 2 * Math.PI * 90;
+
+        // DOM элементы
+        const ringProgress = document.getElementById('ring-progress');
+        const chancePercent = document.getElementById('chance-percent');
+        const chanceSlider = document.getElementById('chance-slider');
+        const inputBet = document.getElementById('input-bet');
+        const inputTarget = document.getElementById('input-target');
+        const axialNeedle = document.getElementById('axial-needle');
+        const upgradeButton = document.getElementById('upgrade-button');
+
+        ringProgress.style.strokeDasharray = ringCircumference;
+
+        function showToast(text, isSuccess) {
+            const t = document.getElementById('toast-msg');
+            t.textContent = text;
+            t.className = `toast ${isSuccess ? 'toast-success' : 'toast-error'} show`;
+            setTimeout(() => t.classList.remove('show'), 3000);
+        }
+
+        async function loadUser() {
             try {
-                const res = await fetch('/api/user/' + userId);
-                const data = await res.json();
-                document.getElementById('balance').innerText = data.balance;
-            } catch (e) { 
-                console.error("Не удалось загрузить профиль", e); 
-            }
-        }
-        loadProfile();
-
-        // Управление модальным окном
-        function openDepositModal() {
-            if (isSpinning) return;
-            document.getElementById('depositModal').style.display = 'flex';
-        }
-        function closeDepositModal() {
-            document.getElementById('depositModal').style.display = 'none';
-            document.getElementById('depositAmount').value = '';
+                let r = await fetch(`${API_URL}/api/user?tg_id=${tgId}`);
+                if (r.ok) {
+                    userLocal = await r.json();
+                }
+            } catch(e) { console.log("Работа в автономном режиме теста."); }
+            syncUI();
         }
 
-        // Выбор шанса
-        function selectChance(chance) {
-            if (isSpinning) return;
-            currentChance = chance;
-            
-            // Обновляем активную кнопку
-            document.querySelectorAll('.chance-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-            
-            // Обновляем заливку колеса
-            const wheel = document.getElementById('wheel');
-            wheel.style.background = `conic-gradient(var(--win) 0% ${chance}%, var(--panel) ${chance}% 100%)`;
-            
-            // Вибрация при переключении
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.selectionChanged();
+        function syncUI() {
+            document.getElementById('header-balance').textContent = userLocal.balance.toFixed(2);
+            document.getElementById('user-title').textContent = userLocal.username;
+            document.getElementById('st-games').textContent = userLocal.games;
+            document.getElementById('st-wins').textContent = userLocal.wins;
+            document.getElementById('st-losses').textContent = userLocal.losses;
+            const wr = userLocal.games > 0 ? Math.round((userLocal.wins / userLocal.games) * 100) : 0;
+            document.getElementById('st-wr').textContent = wr + '%';
+
+            if(userLocal.avatar) {
+                document.getElementById('my-avatar').src = userLocal.avatar;
+                document.getElementById('big-avatar').src = userLocal.avatar;
             }
         }
 
-        // Логика вращения
-        async function play() {
-            if (isSpinning) return;
-            
-            const bet = Number(document.getElementById('betAmount').value);
-            if (bet <= 0) {
-                tg.showAlert('Пожалуйста, введите корректную ставку');
-                return;
-            }
-
-            isSpinning = true;
-            document.getElementById('playBtn').disabled = true;
-            document.getElementById('playBtn').innerText = 'Вращение...';
-
+        async function saveGameStats() {
+            syncUI();
             try {
-                // Запрос к FastAPI серверу
-                const res = await fetch('/api/spin', {
+                await fetch(`${API_URL}/api/game/save`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, bet, chance: currentChance })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(userLocal)
                 });
+            } catch(e){}
+        }
+
+        function updateRing(chance) {
+            const offset = ringCircumference - (chance / 100) * ringCircumference;
+            ringProgress.style.strokeDashoffset = offset;
+            chancePercent.textContent = chance.toFixed(2) + '%';
+        }
+
+        function recalculateByChance() {
+            let bet = parseFloat(inputBet.value) || 0;
+            let chance = parseFloat(chanceSlider.value);
+            updateRing(chance);
+            if (bet > 0) inputTarget.value = (bet * (100 / chance)).toFixed(2);
+        }
+
+        function recalculateByTarget() {
+            let bet = parseFloat(inputBet.value) || 0;
+            let target = parseFloat(inputTarget.value) || 0;
+            if (bet > 0 && target > bet) {
+                let chance = (bet / target) * 100;
+                chance = Math.max(1, Math.min(95, chance));
+                chanceSlider.value = Math.round(chance);
+                updateRing(chance);
+            }
+        }
+
+        // Кнопки быстрых шансов
+        document.querySelectorAll('.chance-btn').forEach(b => {
+            b.addEventListener('click', (e) => {
+                if(isPlaying) return;
+                chanceSlider.value = e.target.getAttribute('data-val');
+                recalculateByChance();
+            });
+        });
+
+        chanceSlider.addEventListener('input', recalculateByChance);
+        inputBet.addEventListener('input', recalculateByChance);
+        inputTarget.addEventListener('input', recalculateByTarget);
+
+        // КНОПКА АПГРЕЙДА
+        upgradeButton.addEventListener('click', () => {
+            if (isPlaying) return;
+            let bet = parseFloat(inputBet.value) || 0;
+            if (bet <= 0 || bet > userLocal.balance) { showToast("Некорректная ставка или мало средств!", false); return; }
+
+            isPlaying = true;
+            upgradeButton.disabled = true;
+            userLocal.balance -= bet;
+            document.getElementById('header-balance').textContent = userLocal.balance.toFixed(2);
+
+            const duration = 2000;
+            axialNeedle.style.transition = `transform ${duration}ms cubic-bezier(0.1, 0.8, 0.2, 1)`;
+            const randomRotation = 1440 + Math.floor(Math.random() * 360);
+            axialNeedle.style.transform = `rotate(${randomRotation}deg)`;
+
+            setTimeout(() => {
+                axialNeedle.style.transition = 'none';
+                axialNeedle.style.transform = 'rotate(0deg)';
                 
-                const data = await res.json();
+                const chance = parseFloat(chanceSlider.value);
+                const roll = Math.random() * 100;
+                userLocal.games++;
 
-                if (data.detail) { 
-                    tg.showAlert(data.detail);
-                    resetPlayButton();
-                    return;
-                }
-
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.impactOccurred('light');
-                }
-
-                const wheel = document.getElementById('wheel');
-                const spins = 5; 
-                
-                let stopDegree;
-                if (data.isWin) {
-                    stopDegree = Math.random() * (currentChance * 3.6);
+                if (roll <= chance) {
+                    let winAmount = parseFloat(inputTarget.value);
+                    userLocal.balance += winAmount;
+                    userLocal.wins++;
+                    showToast(`Отлично! Успешный апгрейд на ${winAmount.toFixed(2)}₽`, true);
                 } else {
-                    stopDegree = (currentChance * 3.6) + Math.random() * ((100 - currentChance) * 3.6);
+                    userLocal.losses++;
+                    showToast("Увы, апгрейд не удался.", false);
                 }
 
-                if (stopDegree < 2) stopDegree = 2;
-                if (stopDegree > 358) stopDegree = 358;
+                isPlaying = false;
+                upgradeButton.disabled = false;
+                saveGameStats();
+            }, duration);
+        });
 
-                const totalRotation = currentRotation + (spins * 360) + (360 - stopDegree) - (currentRotation % 360);
-                currentRotation = totalRotation;
-
-                wheel.style.transform = `rotate(${totalRotation}deg)`;
-
-                setTimeout(() => {
-                    if (tg.HapticFeedback) {
-                        tg.HapticFeedback.notificationOccurred(data.isWin ? 'success' : 'error');
-                    }
-                    
-                    document.getElementById('balance').innerText = data.newBalance;
-                    
-                    if (data.isWin) {
-                        tg.showAlert(`🎉 Успех! Вы выиграли ${data.winAmount} ₽ (x${data.multiplier})`);
-                    }
-                    
-                    resetPlayButton();
-                }, 4000);
-
-            } catch (e) {
-                tg.showAlert('Ошибка соединения с сервером');
-                resetPlayButton();
-            }
-        }
-
-        function resetPlayButton() {
-            isSpinning = false;
-            document.getElementById('playBtn').disabled = false;
-            document.getElementById('playBtn').innerText = 'Апгрейд';
-        }
-
-        // Пополнение
-        async function requestDeposit() {
-            const amount = Number(document.getElementById('depositAmount').value);
-            if (amount < 50) {
-                tg.showAlert('Минимальная сумма пополнения — 50 ₽');
-                return;
-            }
-
-            closeDepositModal();
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
-
+        // КАССОВЫЕ ЗАПРОСЫ В БОТ
+        async function sendTransaction(type, amount) {
             try {
-                await fetch('/api/deposit', {
+                let res = await fetch(`${API_URL}/api/transaction`, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId, amount, username })
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ tg_id: tgId, username: username, type: type, amount: amount })
                 });
-                tg.showAlert('✅ Запрос отправлен! Ожидайте подтверждения администратором.');
-            } catch(e) {
-                tg.showAlert('Ошибка отправки запроса');
-            }
+                if(res.ok) {
+                    showToast("Заявка отправлена администратору на подтверждение!", true);
+                    loadUser();
+                } else {
+                    let err = await res.json();
+                    showToast(err.error || "Ошибка создания заявки", false);
+                }
+            } catch(e) { showToast("Сервер не отвечает.", false); }
         }
 
-        selectChance(50);
+        document.getElementById('btn-deposit').addEventListener('click', () => {
+            let val = parseFloat(document.getElementById('dep-amount').value);
+            if(val > 0) sendTransaction('deposit', val);
+        });
+
+        document.getElementById('btn-withdraw').addEventListener('click', () => {
+            let val = parseFloat(document.getElementById('with-amount').value);
+            if(val > 0) sendTransaction('withdraw', val);
+        });
+
+        // Аватарка
+        document.getElementById('file-avatar').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const r = new FileReader();
+            r.onloadend = async function() {
+                userLocal.avatar = r.result;
+                syncUI();
+                try {
+                    await fetch(`${API_URL}/api/avatar/save`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({tg_id: tgId, avatar: r.result})
+                    });
+                } catch(err){}
+            };
+            r.readAsDataURL(file);
+        });
+
+        // Навигация
+        document.getElementById('go-profile').addEventListener('click', () => document.getElementById('profile-page').classList.add('active'));
+        document.getElementById('back-to-game').addEventListener('click', () => document.getElementById('profile-page').classList.remove('active'));
+        
+        document.getElementById('tab-game').addEventListener('click', (e) => {
+            document.getElementById('view-game').classList.remove('hidden');
+            document.getElementById('view-wallet').classList.add('hidden');
+            document.getElementById('tab-wallet').classList.remove('active');
+            e.target.classList.add('active');
+        });
+        document.getElementById('tab-wallet').addEventListener('click', (e) => {
+            document.getElementById('view-wallet').classList.remove('hidden');
+            document.getElementById('view-game').classList.add('hidden');
+            document.getElementById('tab-game').classList.remove('active');
+            e.target.classList.add('active');
+        });
+
+        loadUser();
+        recalculateByChance();
     </script>
 </body>
 </html>
