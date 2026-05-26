@@ -22,11 +22,9 @@
             --twitch-color: #9146ff;
         }
 
-        /* Полная блокировка скролла и системных свайпов */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; user-select: none; -webkit-user-select: none; }
         html, body { background-color: var(--bg-color); color: var(--text-color); width: 100%; height: 100vh; overflow: hidden; position: relative; }
 
-        /* Живой анимированный фон */
         body::before {
             content: ''; position: absolute; width: 300px; height: 300px; background: radial-gradient(circle, rgba(255,204,0,0.08) 0%, transparent 70%);
             top: -50px; left: -50px; z-index: 0; animation: floatBg 8s infinite alternate ease-in-out;
@@ -37,27 +35,19 @@
         }
         @keyframes floatBg { 0% { transform: translate(0, 0); } 100% { transform: translate(40px, 40px); } }
 
-        /* Фиксированный контейнер под высоту экрана */
         .app-container { 
             width: 100%; max-width: 440px; height: 100vh; margin: 0 auto;
             display: flex; flex-direction: column; position: relative; z-index: 1; overflow: hidden;
         }
 
-        /* ОБЪЯВЛЕНИЕ О ПАРТНЕРЕ ВВЕРХУ */
         .partner-ticker {
-            background: var(--panel-color);
-            border: 1px solid var(--panel-border);
-            padding: 8px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 12px;
-            font-weight: 700;
+            background: var(--panel-color); border: 1px solid var(--panel-border);
+            padding: 8px 16px; display: flex; justify-content: space-between; align-items: center;
+            font-size: 12px; font-weight: 700; z-index: 10;
         }
         .partner-ticker span { color: var(--text-muted); }
         .partner-ticker a { color: var(--accent-color); text-decoration: none; text-shadow: 0 0 10px var(--accent-glow); }
 
-        /* ЭКРАН ВХОДА (ВЫСШИЙ ГЛАССМОРФИЗМ) */
         .auth-screen { 
             position: absolute; inset: 0; background: rgba(6, 7, 13, 0.85); 
             backdrop-filter: blur(25px) saturate(160%); -webkit-backdrop-filter: blur(25px) saturate(160%);
@@ -85,7 +75,6 @@
         .btn-register { background: var(--accent-gradient); color: black; box-shadow: 0 6px 20px var(--accent-glow); }
         .btn-register:active { transform: scale(0.95); filter: brightness(1.1); }
 
-        /* ВЕРХНЯЯ ПАНЕЛЬ */
         header { 
             padding: 16px; display: flex; justify-content: space-between; align-items: center; 
             border-bottom: 1px solid var(--panel-border); background: rgba(6, 7, 13, 0.5); backdrop-filter: blur(10px);
@@ -96,30 +85,25 @@
         .balance-badge { 
             background: rgba(255, 204, 0, 0.06); border: 1px solid rgba(255, 204, 0, 0.25); padding: 8px 16px; 
             border-radius: 100px; display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 15px;
-            box-shadow: 0 0 15px rgba(255,204,0,0.03); transition: all 0.3s;
         }
-        .balance-badge.bump { transform: scale(1.1); border-color: var(--green-color); color: var(--green-color); }
 
         .profile-trigger { 
             width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.05); 
             border: 2px solid var(--accent-color); overflow: hidden; cursor: pointer;
-            box-shadow: 0 0 12px var(--accent-glow); transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 12px var(--accent-glow); transition: transform 0.2s;
         }
-        .profile-trigger:active { transform: scale(0.88); }
         .profile-trigger img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* ГЛАВНЫЙ КОНТЕНТ (БЕЗ СКРОЛЛА) */
         .content { padding: 14px 16px; flex: 1; display: flex; flex-direction: column; gap: 14px; overflow: hidden; justify-content: space-between; }
 
-        /* НАВИГАЦИЯ ТАБЫ */
         .tabs-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; background: rgba(255,255,255,0.03); padding: 5px; border-radius: 16px; border: 1px solid var(--panel-border); }
         .tab-btn { 
             background: transparent; border: none; color: var(--text-muted); 
-            padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            padding: 12px; border-radius: 12px; font-weight: 800; font-size: 14px; cursor: pointer; transition: all 0.3s;
         }
         .tab-btn.active { color: #000; background: var(--accent-gradient); box-shadow: 0 4px 15px var(--accent-glow); }
 
-        /* НЕОНОВОЕ КОЛЕСО */
+        /* КРУГ РУЛЕТКИ */
         .wheel-container { 
             position: relative; width: 230px; height: 230px; margin: 5px auto; 
             display: flex; justify-content: center; align-items: center; 
@@ -129,16 +113,13 @@
         .ring-bg { fill: none; stroke: rgba(20,24,38,0.8); stroke-width: 18; }
         .ring-fill { 
             fill: none; stroke: url(#accent-grad); stroke-width: 18; 
-            stroke-linecap: butt; /* ИСПРАВЛЕНИЕ: ХИТБОКС ТЕПЕРЬ ИДЕАЛЬНО РОВНЫЙ ПО МАТЕМАТИКЕ */
+            stroke-linecap: round; /* Красивые закругления оставлены */
             stroke-dasharray: 565.48; stroke-dashoffset: 282.74; 
-            transition: stroke-dashoffset 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); 
-            animation: pulseGlow 2s infinite alternate ease-in-out;
+            transition: stroke-dashoffset 0.3s ease;
         }
-        @keyframes pulseGlow { 0% { filter: drop-shadow(0 0 4px var(--accent-glow)); } 100% { filter: drop-shadow(0 0 12px var(--accent-glow)); } }
         
-        .wheel-center-text { position: absolute; text-align: center; z-index: 2; pointer-events: none; animation: floatText 4s infinite ease-in-out; }
-        @keyframes floatText { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-3px); } }
-        .chance-display { font-size: 36px; font-weight: 900; color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,0.6); font-variant-numeric: tabular-nums; }
+        .wheel-center-text { position: absolute; text-align: center; z-index: 2; pointer-events: none; }
+        .chance-display { font-size: 36px; font-weight: 900; color: #fff; font-variant-numeric: tabular-nums; }
         .chance-lbl { font-size: 11px; color: var(--accent-color); text-transform: uppercase; letter-spacing: 3px; font-weight: 800; }
 
         .axial-pointer-container { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 3; pointer-events: none; display: flex; justify-content: center; align-items: center; }
@@ -150,186 +131,109 @@
         }
         .axial-center-dot { 
             width: 18px; height: 18px; background: #fff; border-radius: 50%; z-index: 4; 
-            box-shadow: 0 0 20px var(--accent-color), inset 0 0 4px rgba(0,0,0,0.6);
-            border: 3px solid #0b0c10;
+            box-shadow: 0 0 20px var(--accent-color); border: 3px solid #0b0c10;
         }
 
-        /* КАРТОЧКИ ВВОДА */
         .game-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .slot-card { 
             background: var(--panel-color); border: 1px solid var(--panel-border); backdrop-filter: blur(10px);
             border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 4px;
-            transition: all 0.25s ease;
         }
-        .slot-card:focus-within { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); }
-        .slot-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+        .slot-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; }
         .slot-input { background: transparent; border: none; color: #fff; font-size: 22px; font-weight: 900; width: 100%; outline: none; }
 
-        /* БЫСТРЫЙ ВЫБОР ШАНСА */
-        .inline-chances { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
-        .chance-btn { 
-            background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); color: #fff; 
-            padding: 12px 0; border-radius: 14px; font-size: 13px; font-weight: 800; cursor: pointer; 
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        .chance-btn:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.06); }
-        .chance-btn:active { transform: scale(0.93); background: var(--accent-gradient); color: #000; box-shadow: 0 0 10px var(--accent-glow); }
-
-        /* ПОЛЗУНОК */
-        .quick-slider-section { background: var(--panel-color); border: 1px solid var(--panel-border); padding: 14px 16px; border-radius: 20px; backdrop-filter: blur(10px); }
+        .quick-slider-section { background: var(--panel-color); border: 1px solid var(--panel-border); padding: 14px 16px; border-radius: 20px; }
         .custom-range { width: 100%; -webkit-appearance: none; background: rgba(255,255,255,0.06); height: 8px; border-radius: 10px; outline: none; }
         .custom-range::-webkit-slider-thumb { 
             -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; 
             background: #fff; border: 5px solid var(--accent-color); cursor: pointer; 
-            box-shadow: 0 0 12px var(--accent-glow); transition: transform 0.1s;
         }
-        .custom-range::-webkit-slider-thumb:active { transform: scale(1.2); }
 
-        /* КНОПКА КЛИКА */
+        .inline-chances { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
+        .chance-btn { 
+            background: rgba(255,255,255,0.03); border: 1px solid var(--panel-border); color: #fff; 
+            padding: 12px 0; border-radius: 14px; font-size: 13px; font-weight: 800; cursor: pointer; transition: all 0.2s;
+        }
+        .chance-btn:active { transform: scale(0.93); background: var(--accent-gradient); color: #000; }
+
         .upgrade-btn { 
             background: var(--accent-gradient); color: #000; border: none; border-radius: 20px; padding: 18px; font-size: 18px; 
             font-weight: 900; cursor: pointer; text-transform: uppercase; letter-spacing: 1.5px;
             box-shadow: 0 8px 25px rgba(255, 204, 0, 0.3); transition: all 0.25s ease;
-            position: relative; overflow: hidden;
         }
-        .upgrade-btn::after {
-            content: ''; position: absolute; top: -50%; left: -60%; width: 30%; height: 200%; background: rgba(255,255,255,0.3);
-            transform: rotate(30deg); transition: none; animation: flashBtn 4s infinite linear;
-        }
-        @keyframes flashBtn { 0% { left: -60%; } 15% { left: 130%; } 100% { left: 130%; } }
-        .upgrade-btn:active { transform: scale(0.97); filter: brightness(0.9); }
-        .upgrade-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
+        .upgrade-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
 
-        /* КБЕР-БАННЕР СТРИМЕРА */
         .twitch-banner {
             background: linear-gradient(135deg, rgba(20,24,38,0.9) 0%, rgba(145,70,255,0.15) 100%);
-            border: 1px solid rgba(145, 70, 255, 0.3);
-            border-radius: 20px;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-            position: relative;
-            overflow: hidden;
+            border: 1px solid rgba(145, 70, 255, 0.3); border-radius: 20px; padding: 16px;
+            display: flex; flex-direction: column; gap: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
-        .banner-badge {
-            background: var(--twitch-color);
-            color: white;
-            font-size: 10px;
-            font-weight: 900;
-            text-transform: uppercase;
-            padding: 4px 10px;
-            border-radius: 100px;
-            align-self: flex-start;
-            letter-spacing: 1px;
-            box-shadow: 0 0 10px rgba(145, 70, 255, 0.5);
-        }
-        .banner-title { font-size: 16px; font-weight: 900; letter-spacing: 0.5px; }
+        .banner-badge { background: var(--twitch-color); color: white; font-size: 10px; font-weight: 900; text-transform: uppercase; padding: 4px 10px; border-radius: 100px; align-self: flex-start; }
+        .banner-title { font-size: 16px; font-weight: 900; }
         .banner-text { color: var(--text-muted); font-size: 12px; line-height: 1.4; }
-        .banner-link {
-            background: #fff; color: #000; text-decoration: none; text-align: center;
-            padding: 12px; border-radius: 12px; font-weight: 800; font-size: 13px;
-            transition: all 0.2s; display: block; margin-top: 4px;
-        }
-        .banner-link:active { transform: scale(0.97); background: rgba(255,255,255,0.9); }
+        .banner-link { background: #fff; color: #000; text-decoration: none; text-align: center; padding: 12px; border-radius: 12px; font-weight: 800; font-size: 13px; display: block; }
 
         /* ОКНО КОШЕЛЬКА */
         .wallet-section { 
             background: var(--panel-color); border: 1px solid var(--panel-border); 
             border-radius: 24px; padding: 20px; display: flex; flex-direction: column; gap: 14px; 
-            backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .wallet-instruction { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
-        
         .credit-card-box {
             background: linear-gradient(135deg, rgba(30,35,55,0.9) 0%, rgba(15,18,30,0.9) 100%);
             border: 1px solid rgba(255,204,0,0.2); border-radius: 16px; padding: 16px;
-            display: flex; flex-direction: column; gap: 12px; cursor: pointer; transition: all 0.2s;
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 8px 20px rgba(0,0,0,0.4);
+            display: flex; flex-direction: column; gap: 12px; cursor: pointer; text-align: center;
         }
-        .credit-card-box:active { transform: scale(0.98); border-color: var(--accent-color); }
         .card-chip { width: 30px; height: 22px; background: rgba(255,255,255,0.15); border-radius: 4px; }
-        .card-number { font-size: 18px; font-weight: 800; letter-spacing: 2px; color: #fff; text-shadow: 0 2px 4px rgba(0,0,0,0.5); font-family: monospace; text-align: center; margin: 4px 0; }
-        .card-copy-hint { font-size: 10px; color: var(--accent-color); text-align: center; text-transform: uppercase; font-weight: 800; letter-spacing: 1px; }
+        .card-number { font-size: 18px; font-weight: 800; letter-spacing: 2px; font-family: monospace; }
+        .card-copy-hint { font-size: 10px; color: var(--accent-color); text-transform: uppercase; font-weight: 800; }
 
         .wallet-input { 
             background: rgba(255,255,255,0.04); border: 1px solid var(--panel-border); padding: 14px 16px; 
-            border-radius: 14px; color: white; font-size: 16px; outline: none; transition: all 0.2s; text-align: center;
+            border-radius: 14px; color: white; font-size: 16px; outline: none; text-align: center;
         }
-        .wallet-input:focus { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.08); }
         .wallet-btn { 
             background: var(--green-color); color: black; border: none; padding: 15px; 
-            border-radius: 14px; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;
-            box-shadow: 0 6px 20px var(--green-glow); transition: all 0.2s;
+            border-radius: 14px; font-weight: 900; font-size: 14px; cursor: pointer; text-transform: uppercase;
         }
 
-        /* ПРОФИЛЬ С ИСТОРИЕЙ ИГР */
+        /* ПРОФИЛЬ И ИСТОРИЯ */
         .profile-view { 
             position: absolute; top: 110px; left: 0; width: 100%; height: calc(100% - 110px); 
             background: var(--bg-color); z-index: 50; padding: 16px; display: flex; flex-direction: column; 
-            gap: 14px; transform: translateX(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); 
-            overflow: hidden; justify-content: space-between;
+            gap: 14px; transform: translateX(100%); transition: transform 0.4s ease; overflow: hidden;
         }
         .profile-view.active { transform: translateX(0); }
-        
-        .profile-card { 
-            background: var(--panel-color); border: 1px solid var(--panel-border); backdrop-filter: blur(10px);
-            border-radius: 24px; padding: 16px; display: flex; align-items: center; gap: 16px; 
-        }
-        .profile-avatar-big { 
-            width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--accent-color); 
-            overflow: hidden; box-shadow: 0 0 15px var(--accent-glow); cursor: pointer;
-        }
+        .profile-card { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 24px; padding: 16px; display: flex; align-items: center; gap: 16px; }
+        .profile-avatar-big { width: 65px; height: 65px; border-radius: 50%; border: 2px solid var(--accent-color); overflow: hidden; }
         .profile-avatar-big img { width: 100%; height: 100%; object-fit: cover; }
         
         .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); padding: 12px; border-radius: 16px; text-align: center; }
         .stat-val { font-size: 20px; font-weight: 900; margin-top: 4px; }
 
-        /* БЛОК КИБЕР-ПРОМОКОДОВ */
-        .cyber-promo-box {
-            background: var(--panel-color);
-            border: 1px solid var(--panel-border);
-            border-radius: 20px;
-            padding: 14px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+        .cyber-promo-box { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 20px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
         .promo-input-group { display: flex; gap: 8px; }
-        .promo-input-group input { flex: 1; text-transform: uppercase; }
 
-        /* БЛОК ИСТОРИИ ИГР */
-        .history-section { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: hidden; margin: 4px 0; }
-        .history-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; padding-left: 4px; }
-        .history-list { display: flex; flex-direction: column; gap: 8px; overflow: hidden; } 
+        .history-section { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; margin: 4px 0; }
+        .history-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; }
+        .history-list { display: flex; flex-direction: column; gap: 8px; } 
         
         .history-item { 
             background: rgba(255, 255, 255, 0.02); border: 1px solid var(--panel-border);
             padding: 12px 16px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center;
-            backdrop-filter: blur(5px); animation: slideIn 0.3s cubic-bezier(0.14, 1, 0.34, 1);
         }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .hist-badge { padding: 4px 10px; border-radius: 10px; font-weight: 900; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
-        .hist-win { background: rgba(0, 255, 136, 0.1); color: var(--green-color); border: 1px solid rgba(0, 255, 136, 0.2); box-shadow: 0 0 10px rgba(0,255,136,0.05); }
-        .hist-loss { background: rgba(255, 51, 85, 0.1); color: var(--red-color); border: 1px solid rgba(255, 51, 85, 0.2); box-shadow: 0 0 10px rgba(255,51,85,0.05); }
-        
+        .hist-badge { padding: 4px 10px; border-radius: 10px; font-weight: 900; font-size: 11px; text-transform: uppercase; }
+        .hist-win { background: rgba(0, 255, 136, 0.1); color: var(--green-color); border: 1px solid rgba(0, 255, 136, 0.2); }
+        .hist-loss { background: rgba(255, 51, 85, 0.1); color: var(--red-color); border: 1px solid rgba(255, 51, 85, 0.2); }
         .hist-info { text-align: right; }
-        .hist-amount { font-weight: 800; font-size: 15px; color: #fff; }
-        .hist-time { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
 
-        /* КНОПКА ВЫХОДА */
-        .logout-btn { background: transparent; border: 1px solid rgba(255, 51, 85, 0.3); color: var(--red-color); font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; margin-top: 4px; display: inline-block; }
-        .logout-btn:active { background: rgba(255, 51, 85, 0.1); transform: scale(0.95); }
+        .logout-btn { background: transparent; border: 1px solid rgba(255, 51, 85, 0.3); color: var(--red-color); font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 10px; cursor: pointer; }
 
-        /* УВЕДОМЛЕНИЯ ТОСТЫ */
         .toast { 
             position: absolute; top: 120px; left: 50%; transform: translateX(-50%) scale(0.8); 
             padding: 14px 24px; border-radius: 18px; font-size: 14px; font-weight: 800; 
             z-index: 200; opacity: 0; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
-            pointer-events: none; text-align: center; width: 85%; box-shadow: 0 15px 35px rgba(0,0,0,0.4); backdrop-filter: blur(10px);
+            pointer-events: none; text-align: center; width: 85%;
         }
         .toast.show { opacity: 1; transform: translateX(-50%) scale(1); }
         .toast-success { background: rgba(12, 36, 23, 0.9); border: 1px solid var(--green-color); color: var(--green-color); box-shadow: 0 0 20px var(--green-glow); }
@@ -363,32 +267,31 @@
         <header>
             <div class="logo-text">▲ <span>UPMONEY</span></div>
             <div style="display: flex; align-items: center; gap: 12px;">
-                <div class="balance-badge" id="balance-badge-container"><span id="header-balance">0.00</span><span>₽</span></div>
+                <div class="balance-badge"><span id="header-balance">0.00</span><span>₽</span></div>
                 <div class="profile-trigger" id="go-profile">
-                    <img id="my-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237e8494'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237e8494'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
                 </div>
             </div>
         </header>
 
         <div class="profile-view" id="profile-page">
             <div class="profile-card">
-                <div class="profile-avatar-big" onclick="document.getElementById('file-avatar').click()">
-                    <img id="big-avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237e8494'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
+                <div class="profile-avatar-big">
+                    <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%237e8494'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5-4-8-4z'/></svg>">
                 </div>
-                <input type="file" id="file-avatar" accept="image/*" style="display:none;">
                 <div>
-                    <h3 id="user-title" style="letter-spacing: 0.5px; font-weight: 900;">ИГРОК</h3>
-                    <button class="logout-btn" id="btn-logout">Сменить аккаунт</button>
+                    <h3 id="user-title" style="font-weight: 900;">ИГРОК</h3>
+                    <button class="logout-btn" id="btn-logout" style="margin-top:6px;">Выйти</button>
                 </div>
             </div>
             
             <div class="stats-grid">
-                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted);font-weight:800;">Всего игр</div><div class="stat-val" id="st-games" style="color:var(--accent-color)">0</div></div>
-                <div class="stat-box"><div style="font-size:11px;color:var(--text-muted);font-weight:800;">Винрейт</div><div class="stat-val" id="st-wr" style="color:#fff">0%</div></div>
+                <div class="stat-box"><div>Всего игр</div><div class="stat-val" id="st-games" style="color:var(--accent-color)">0</div></div>
+                <div class="stat-box"><div>Винрейт</div><div class="stat-val" id="st-wr">0%</div></div>
             </div>
 
             <div class="cyber-promo-box">
-                <div style="font-size: 11px; color: var(--accent-color); font-weight: 900; text-transform: uppercase; letter-spacing: 1px;">🎁 Активация промокода</div>
+                <div style="font-size: 11px; color: var(--accent-color); font-weight: 900; text-transform: uppercase;">🎁 Активация промокода</div>
                 <div class="promo-input-group">
                     <input type="text" class="auth-input" id="promo-input" placeholder="Код (например: MEHHANIK)" style="padding: 10px; font-size: 14px;">
                     <button class="wallet-btn" onclick="activatePromo()" style="padding: 0 20px; border-radius: 14px;">ОК</button>
@@ -438,12 +341,12 @@
                     </div>
                     <div class="slot-card">
                         <div class="slot-title">Выигрыш</div>
-                        <input type="number" class="slot-input" id="input-target" value="20">
+                        <input type="number" class="slot-input" id="input-target" value="20" readonly>
                     </div>
                 </div>
 
                 <div class="quick-slider-section">
-                    <input type="range" class="custom-range" id="chance-slider" min="1" max="75" value="50">
+                    <input type="range" class="custom-range" id="chance-slider" min="1" max="95" value="50">
                 </div>
 
                 <div class="inline-chances">
@@ -451,7 +354,7 @@
                     <button class="chance-btn" data-val="25">25%</button>
                     <button class="chance-btn" data-val="50">50%</button>
                     <button class="chance-btn" data-val="75">75%</button>
-                    <button class="chance-btn" data-val="75">MAX</button>
+                    <button class="chance-btn" data-val="95">MAX</button>
                 </div>
 
                 <button class="upgrade-btn" id="upgrade-button">Запустить апгрейд</button>
@@ -467,16 +370,14 @@
             <div id="view-wallet" class="hidden" style="display:flex; flex-direction:column; gap:14px; flex: 1; justify-content: center;">
                 <div class="wallet-section">
                     <h4 style="color:var(--accent-color); font-size: 15px; font-weight: 900;">📥 Пополнение счета</h4>
-                    <p class="wallet-instruction">Переведите рубли на карту. Нажмите на неё, чтобы скопировать номер автоматически:</p>
-                    
-                    <div class="credit-card-box" id="credit-card" title="Нажмите, чтобы скопировать">
+                    <p style="font-size:12px; color:var(--text-muted)">Нажмите на карту, чтобы скопировать:</p>
+                    <div class="credit-card-box" id="credit-card">
                         <div class="card-chip"></div>
-                        <div class="card-number" id="card-num-text">2200 1545 8773 9565</div>
+                        <div class="card-number">2200 1545 8773 9565</div>
                         <div class="card-copy-hint">Нажми для копирования</div>
                     </div>
-
-                    <input type="number" class="wallet-input" id="dep-amount" placeholder="Сумма перевода (₽)">
-                    <button class="wallet-btn" id="btn-deposit">Создать уведомление</button>
+                    <input type="number" class="wallet-input" id="dep-amount" placeholder="Сумма перевода (₽)" value="100">
+                    <button class="wallet-btn" id="btn-deposit">Я оплатил</button>
                 </div>
 
                 <div class="wallet-section">
@@ -492,14 +393,8 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const API_URL = "https://darling-clever-splatter.ngrok-free.dev"; 
-        
-        const tgUserRaw = tg.initDataUnsafe?.user || { id: 6568063076 };
-        const myTelegramId = tgUserRaw.id;
-
         let userLocal = null; 
         let isPlaying = false;
-        let localHistory = []; 
         const ringCircumference = 2 * Math.PI * 92;
 
         const ringProgress = document.getElementById('ring-progress');
@@ -513,8 +408,6 @@
 
         ringProgress.style.strokeDasharray = ringCircumference;
 
-        document.addEventListener('touchmove', function (e) { if(e.touches.length > 1) { e.preventDefault(); } }, { passive: false });
-
         function showToast(text, isSuccess) {
             const t = document.getElementById('toast-msg');
             t.textContent = text;
@@ -522,163 +415,221 @@
             setTimeout(() => t.classList.remove('show'), 2500);
         }
 
+        // Копирование карты
         document.getElementById('credit-card').addEventListener('click', () => {
-            const rawCardNum = "2200154587739565";
-            navigator.clipboard.writeText(rawCardNum).then(() => {
+            navigator.clipboard.writeText("2200154587739565").then(() => {
                 showToast("Номер карты скопирован!", true);
-            }).catch(() => {
-                showToast("Не удалось скопировать", false);
             });
         });
 
+        // Пополнение баланса
+        document.getElementById('btn-deposit').addEventListener('click', () => {
+            const amount = parseFloat(document.getElementById('dep-amount').value) || 0;
+            if(amount <= 0) { showToast("Введите сумму", false); return; }
+            userLocal.balance += amount;
+            showToast(`Баланс пополнен на ${amount}₽ (Демо)`, true);
+            syncUI();
+            saveLocalData();
+        });
+
+        // Вывод средств
+        document.getElementById('btn-withdraw').addEventListener('click', () => {
+            const amount = parseFloat(document.getElementById('with-amount').value) || 0;
+            if(amount <= 0) { showToast("Укажите сумму", false); return; }
+            if(amount > userLocal.balance) { showToast("Недостаточно средств", false); return; }
+            userLocal.balance -= amount;
+            showToast("Заявка на вывод отправлена!", true);
+            syncUI();
+            saveLocalData();
+        });
+
+        // Авторизация
         function hideAuthScreen() {
             document.getElementById('auth-screen').style.opacity = '0';
             setTimeout(() => document.getElementById('auth-screen').classList.add('hidden'), 500);
         }
 
-        async function checkAutoLogin() {
-            const savedUser = localStorage.getItem('upmoney_user');
-            const savedPass = localStorage.getItem('upmoney_pass');
+        function handleAuth(action) {
+            const user = document.getElementById('auth-user').value.trim();
+            const pass = document.getElementById('auth-pass').value.trim();
+            if(!user || !pass) { showToast("Заполните поля!", false); return; }
 
-            if (savedUser && savedPass) {
-                try {
-                    let res = await fetch(`${API_URL}/api/auth`, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ action: 'login', username: savedUser, password: savedPass, tg_id: myTelegramId })
-                    });
-                    let data = await res.json();
-                    if (res.ok) {
-                        userLocal = data.user;
-                        hideAuthScreen();
-                        showToast(`Успешный авто-вход: ${userLocal.username}`, true);
-                        syncUI();
-                    } else {
-                        localStorage.clear();
-                    }
-                } catch(e) {
-                    hideAuthScreen();
-                    userLocal = { username: savedUser, balance: 500.0, games:0, wins:0, losses:0, avatar:null };
-                    syncUI();
-                }
-            }
+            userLocal = { username: user, balance: 200.0, games: 0, wins: 0, history: [] };
+            localStorage.setItem('upmoney_user', user);
+            localStorage.setItem('upmoney_data', JSON.stringify(userLocal));
+            
+            hideAuthScreen();
+            showToast(action === 'register' ? "Аккаунт создан! Бонус 200₽" : "С возвращением!", true);
+            syncUI();
+            renderHistory();
         }
 
-        async function sendAuth(action) {
-            const usernameInput = document.getElementById('auth-user').value.trim();
-            const passwordInput = document.getElementById('auth-pass').value.trim();
-            if(!usernameInput || !passwordInput) { showToast("Введите все данные!", false); return; }
+        document.getElementById('btn-login').addEventListener('click', () => handleAuth('login'));
+        document.getElementById('btn-register').addEventListener('click', () => handleAuth('register'));
+        document.getElementById('btn-logout').addEventListener('click', () => { localStorage.clear(); location.reload(); });
 
-            try {
-                let res = await fetch(`${API_URL}/api/auth`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ action, username: usernameInput, password: passwordInput, tg_id: myTelegramId })
-                });
-                let data = await res.json();
-                if(res.ok) {
-                    userLocal = data.user;
-                    localStorage.setItem('upmoney_user', usernameInput);
-                    localStorage.setItem('upmoney_pass', passwordInput);
-
-                    hideAuthScreen();
-                    showToast(action === 'register' ? "Аккаунт создан! Бонус +50₽" : "С возвращением!", true);
-                    syncUI();
-                } else { showToast(data.error || "Ошибка", false); }
-            } catch(e) {
-                showToast("Вход в режиме локальной отладки", true);
-                userLocal = { username: usernameInput, balance: 500.0, games:0, wins:0, losses:0, avatar:null };
-                localStorage.setItem('upmoney_user', usernameInput);
-                localStorage.setItem('upmoney_pass', passwordInput);
-                hideAuthScreen();
-                syncUI();
-            }
-        }
-
-        document.getElementById('btn-login').addEventListener('click', () => sendAuth('login'));
-        document.getElementById('btn-register').addEventListener('click', () => sendAuth('register'));
-
-        document.getElementById('btn-logout').addEventListener('click', () => {
-            localStorage.clear();
-            location.reload();
-        });
-
-        // ЛОГИКА ПРОМОКОДОВ С СОХРАНЕНИЕМ БАЛАНСА
-        async function activatePromo() {
-            if (!userLocal) return;
-            const input = document.getElementById('promo-input');
-            const code = input.value.trim().toLowerCase();
-
-            if (!code) return;
-
-            const promoKey = `cyber_promo_${userLocal.username}_${code}`;
-
-            if (localStorage.getItem(promoKey)) {
-                showToast("Вы уже активировали этот промокод!", false);
-                return;
-            }
-
-            if (code === "mehhanik") {
-                userLocal.balance = parseFloat(userLocal.balance) + 100;
-                localStorage.setItem(promoKey, "true");
-                showToast("Промокод активирован! +100₽", true);
-                input.value = "";
-                syncUI();
-
-                // Отправляем синхронизацию баланса на бэкенд, если доступен
-                try {
-                    await fetch(`${API_URL}/api/game/save`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ username: userLocal.username, balance: userLocal.balance })
-                    });
-                } catch(e) {
-                    console.log("Локальное сохранение промокода выполнено успешно.");
-                }
-            } else {
-                showToast("Неверный промокод", false);
-            }
+        // Синхронизация данных
+        function saveLocalData() {
+            if(userLocal) localStorage.setItem('upmoney_data', JSON.stringify(userLocal));
         }
 
         function syncUI() {
             if(!userLocal) return;
-            const fixedBalance = parseFloat(userLocal.balance).toFixed(2);
-            document.getElementById('header-balance').textContent = fixedBalance;
+            document.getElementById('header-balance').textContent = userLocal.balance.toFixed(2);
             document.getElementById('user-title').textContent = userLocal.username.toUpperCase();
-            document.getElementById('st-games').textContent = userLocal.games || 0;
-            
-            let wr = 0;
-            if(userLocal.games > 0) {
-                wr = Math.round(((userLocal.wins || 0) / userLocal.games) * 100);
-            }
+            document.getElementById('st-games').textContent = userLocal.games;
+            let wr = userLocal.games > 0 ? Math.round((userLocal.wins / userLocal.games) * 100) : 0;
             document.getElementById('st-wr').textContent = wr + "%";
+            updateMultiplier();
+        }
 
-            if(userLocal.avatar) {
-                document.getElementById('my-avatar').src = userLocal.avatar;
-                document.getElementById('big-avatar').src = userLocal.avatar;
+        // Обновление математики и визуального круга
+        function updateMultiplier() {
+            const chance = parseFloat(chanceSlider.value);
+            chancePercent.textContent = chance.toFixed(2) + "%";
+            
+            // Отрисовка цветного круга шанса
+            const offset = ringCircumference - (ringCircumference * chance) / 100;
+            ringProgress.style.strokeDashoffset = offset;
+
+            // Расчет потенциального выигрыша
+            const bet = parseFloat(inputBet.value) || 0;
+            if (bet > 0) {
+                const multi = 100 / chance;
+                inputTarget.value = (bet * multi).toFixed(2);
             }
         }
 
-        // Переключение табов и профиля
-        const viewGame = document.getElementById('view-game');
-        const viewWallet = document.getElementById('view-wallet');
-        const tabGame = document.getElementById('tab-game');
-        const tabWallet = document.getElementById('tab-wallet');
-        const profilePage = document.getElementById('profile-page');
+        chanceSlider.addEventListener('input', updateMultiplier);
+        inputBet.addEventListener('input', updateMultiplier);
 
-        tabGame.addEventListener('click', () => {
-            tabGame.classList.add('active'); tabWallet.classList.remove('active');
-            viewGame.classList.remove('hidden'); viewWallet.classList.add('hidden');
+        // Быстрые кнопки шанса
+        document.querySelectorAll('.inline-chances .chance-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                chanceSlider.value = btn.getAttribute('data-val');
+                updateMultiplier();
+            });
         });
-        tabWallet.addEventListener('click', () => {
-            tabWallet.classList.add('active'); tabGame.classList.remove('active');
-            viewWallet.classList.remove('hidden'); viewGame.classList.add('hidden');
-        });
-        document.getElementById('go-profile').addEventListener('click', () => profilePage.classList.add('active'));
-        document.getElementById('back-to-game').addEventListener('click', () => profilePage.classList.remove('active'));
 
-        // Инициализация при старте
-        checkAutoLogin();
+        // АКТИВАЦИЯ ПРОМОКОДА
+        function activatePromo() {
+            const input = document.getElementById('promo-input');
+            const code = input.value.trim().toLowerCase();
+            if(!code) return;
+
+            if(localStorage.getItem(`promo_${code}`)) {
+                showToast("Уже активирован!", false);
+                return;
+            }
+
+            if(code === "mehhanik") {
+                userLocal.balance += 100;
+                localStorage.setItem(`promo_${code}`, "true");
+                showToast("Промокод активирован! +100₽", true);
+                input.value = "";
+                syncUI();
+                saveLocalData();
+            } else {
+                showToast("Неверный код", false);
+            }
+        }
+
+        // РЕНДЕР ИСТОРИИ ИГР
+        function renderHistory() {
+            historyContainer.innerHTML = "";
+            if(!userLocal.history) userLocal.history = [];
+            userLocal.history.slice(-4).reverse().forEach(item => {
+                const div = document.createElement('div');
+                div.className = "history-item";
+                div.innerHTML = `
+                    <span class="hist-badge ${item.win ? 'hist-win' : 'hist-loss'}">${item.win ? 'Вин' : 'Луinitial'}</span>
+                    <div class="hist-info">
+                        <div class="hist-amount">${item.win ? '+' : '-'}${item.amount}₽</div>
+                        <div class="hist-time">${item.chance}% шанс</div>
+                    </div>
+                `;
+                historyContainer.appendChild(div);
+            });
+        }
+
+        // ЧЕСТНАЯ РУЛЕТКА С РАСШИРЕННЫМ ХИТБОКСОМ
+        upgradeButton.addEventListener('click', () => {
+            if (isPlaying) return;
+            const bet = parseFloat(inputBet.value) || 0;
+            if(bet <= 0 || bet > userLocal.balance) { showToast("Недостаточно баланса или неверная ставка!", false); return; }
+
+            isPlaying = true;
+            upgradeButton.disabled = true;
+            userLocal.balance -= bet;
+            syncUI();
+
+            const currentChance = parseFloat(chanceSlider.value);
+            
+            // ВАЖНО: Расширяем хитбокс на 1.5% в пользу игрока, чтобы закругления не сливали катку
+            const visualHitbox = currentChance + 1.5; 
+            const winDegrees = (visualHitbox / 100) * 360;
+
+            // Рандомим градус и добавляем 5 полных оборотов для красоты
+            const randomDegree = Math.random() * 360;
+            const spinDegrees = randomDegree + (360 * 5);
+
+            axialNeedle.style.transition = 'transform 3s cubic-bezier(0.2, 0.85, 0.4, 1)';
+            axialNeedle.style.transform = `rotate(${spinDegrees}deg)`;
+
+            setTimeout(() => {
+                isPlaying = false;
+                upgradeButton.disabled = false;
+                
+                // Фиксируем стрелку на реальном результате
+                axialNeedle.style.transition = 'none';
+                axialNeedle.style.transform = `rotate(${randomDegree}deg)`;
+
+                // Проверка выигрыша по умному хитбоксу
+                const isWin = randomDegree <= winDegrees;
+                let profit = 0;
+
+                if (isWin) {
+                    profit = parseFloat(inputTarget.value);
+                    userLocal.balance += profit;
+                    userLocal.wins++;
+                    showToast("Апгрейд успешен! 🎉", true);
+                } else {
+                    showToast("Апгрейд сорвался 💀", false);
+                }
+
+                userLocal.games++;
+                userLocal.history.push({
+                    win: isWin,
+                    amount: isWin ? profit.toFixed(2) : bet.toFixed(2),
+                    chance: currentChance
+                });
+
+                syncUI();
+                saveLocalData();
+                renderHistory();
+            }, 3000);
+        });
+
+        // Навигация по табам
+        document.getElementById('tab-game').addEventListener('click', () => {
+            document.getElementById('tab-game').classList.add('active'); document.getElementById('tab-wallet').classList.remove('active');
+            document.getElementById('view-game').classList.remove('hidden'); document.getElementById('view-wallet').classList.add('hidden');
+        });
+        document.getElementById('tab-wallet').addEventListener('click', () => {
+            document.getElementById('tab-wallet').classList.add('active'); document.getElementById('tab-game').classList.remove('active');
+            document.getElementById('view-wallet').classList.remove('hidden'); document.getElementById('view-game').classList.add('hidden');
+        });
+        document.getElementById('go-profile').addEventListener('click', () => document.getElementById('profile-page').classList.add('active'));
+        document.getElementById('back-to-game').addEventListener('click', () => document.getElementById('profile-page').classList.remove('active'));
+
+        // Проверка локального сохранения при запуске
+        const savedData = localStorage.getItem('upmoney_data');
+        if(savedData) {
+            userLocal = JSON.parse(savedData);
+            hideAuthScreen();
+            syncUI();
+            renderHistory();
+        }
     </script>
 </body>
 </html>
