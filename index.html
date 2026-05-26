@@ -47,7 +47,6 @@
 
         .content { padding: 16px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
 
-        /* Вкладочные элементы */
         .tabs-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; }
         .tab-btn {
             background: var(--panel-color); border: 1px solid var(--panel-border);
@@ -55,7 +54,6 @@
         }
         .tab-btn.active { color: #000; background: var(--accent-color); border-color: var(--accent-color); }
 
-        /* Колесо с осевой стрелкой */
         .wheel-container { position: relative; width: 220px; height: 220px; margin: 10px auto; display: flex; justify-content: center; align-items: center; }
         .svg-ring { transform: rotate(-90deg); }
         .ring-bg { fill: none; stroke: #121217; stroke-width: 14; }
@@ -72,13 +70,11 @@
         .axial-needle { position: absolute; width: 4px; height: 90px; background: linear-gradient(to top, transparent 30%, var(--accent-color) 100%); bottom: 50%; transform-origin: bottom center; border-radius: 2px; box-shadow: 0 0 8px var(--accent-color); }
         .axial-center-dot { width: 10px; height: 10px; background: var(--accent-color); border-radius: 50%; z-index: 4; }
 
-        /* Слоты */
         .game-slots { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .slot-card { background-color: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
         .slot-title { font-size: 11px; color: var(--text-muted); text-transform: uppercase; font-weight: bold; }
         .slot-input { background: transparent; border: none; color: #fff; font-size: 18px; font-weight: bold; width: 100%; outline: none; }
 
-        /* Кнопки Быстрого Шанса */
         .inline-chances { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; }
         .chance-btn { background: var(--panel-color); border: 1px solid var(--panel-border); color: #fff; padding: 8px 0; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
         .chance-btn:hover { border-color: var(--accent-color); }
@@ -90,13 +86,11 @@
         .upgrade-btn { background-color: var(--accent-color); color: #000; border: none; border-radius: 8px; padding: 15px; font-size: 16px; font-weight: 800; cursor: pointer; text-transform: uppercase; box-shadow: 0 4px 12px var(--accent-glow); }
         .upgrade-btn:disabled { opacity: 0.5; }
 
-        /* Касса (Пополнение/Вывод) */
         .wallet-section { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
         .wallet-instruction { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
         .wallet-input { background: #14141c; border: 1px solid var(--panel-border); padding: 12px; border-radius: 6px; color: white; font-size: 15px; outline: none; }
         .wallet-btn { background: var(--green-color); color: black; border: none; padding: 12px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
-        /* Окно профиля */
         .profile-view { position: absolute; top: 65px; left: 0; width: 100%; height: calc(100% - 65px); background: #07070a; z-index: 50; padding: 16px; display: flex; flex-direction: column; gap: 16px; transform: translateX(100%); transition: transform 0.3s ease; }
         .profile-view.active { transform: translateX(0); }
         .profile-card { background: var(--panel-color); border: 1px solid var(--panel-border); border-radius: 10px; padding: 16px; display: flex; align-items: center; gap: 12px; }
@@ -215,15 +209,13 @@
     </div>
 
     <script>
-        // --- ИНТЕГРАЦИЯ С TG MINI APP ---
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Замените на реальный URL вашего Python сервера после развертывания
+        // Серверный URL
         const API_URL = "http://localhost:8080"; 
         
-        // Получаем реальные данные из Telegram
-        const userRaw = tg.initDataUnsafe?.user || { id: 7777777, username: "TestUser", first_name: "Локальный Тест" };
+        const userRaw = tg.initDataUnsafe?.user || { id: 6568063076, username: "Zahar", first_name: "Захар" };
         const tgId = userRaw.id;
         const username = userRaw.username || userRaw.first_name;
 
@@ -231,7 +223,6 @@
         let isPlaying = false;
         const ringCircumference = 2 * Math.PI * 90;
 
-        // DOM элементы
         const ringProgress = document.getElementById('ring-progress');
         const chancePercent = document.getElementById('chance-percent');
         const chanceSlider = document.getElementById('chance-slider');
@@ -255,7 +246,7 @@
                 if (r.ok) {
                     userLocal = await r.json();
                 }
-            } catch(e) { console.log("Работа в автономном режиме теста."); }
+            } catch(e) { console.log("Автономный режим."); }
             syncUI();
         }
 
@@ -309,7 +300,6 @@
             }
         }
 
-        // Кнопки быстрых шансов
         document.querySelectorAll('.chance-btn').forEach(b => {
             b.addEventListener('click', (e) => {
                 if(isPlaying) return;
@@ -322,7 +312,6 @@
         inputBet.addEventListener('input', recalculateByChance);
         inputTarget.addEventListener('input', recalculateByTarget);
 
-        // КНОПКА АПГРЕЙДА
         upgradeButton.addEventListener('click', () => {
             if (isPlaying) return;
             let bet = parseFloat(inputBet.value) || 0;
@@ -362,7 +351,6 @@
             }, duration);
         });
 
-        // КАССОВЫЕ ЗАПРОСЫ В БОТ
         async function sendTransaction(type, amount) {
             try {
                 let res = await fetch(`${API_URL}/api/transaction`, {
@@ -390,7 +378,6 @@
             if(val > 0) sendTransaction('withdraw', val);
         });
 
-        // Аватарка
         document.getElementById('file-avatar').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -409,7 +396,6 @@
             r.readAsDataURL(file);
         });
 
-        // Навигация
         document.getElementById('go-profile').addEventListener('click', () => document.getElementById('profile-page').classList.add('active'));
         document.getElementById('back-to-game').addEventListener('click', () => document.getElementById('profile-page').classList.remove('active'));
         
