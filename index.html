@@ -192,7 +192,6 @@
         }
         .wallet-instruction { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
         
-        /* Стилизация интерактивной карты */
         .credit-card-box {
             background: linear-gradient(135deg, rgba(30,35,55,0.9) 0%, rgba(15,18,30,0.9) 100%);
             border: 1px solid rgba(255,204,0,0.2); border-radius: 16px; padding: 16px;
@@ -238,7 +237,7 @@
         .stat-box { background: rgba(255,255,255,0.02); border: 1px solid var(--panel-border); padding: 12px; border-radius: 16px; text-align: center; }
         .stat-val { font-size: 20px; font-weight: 900; margin-top: 4px; }
 
-        /* БЛОК ИСТОРИИ ИГР (ФИКСИРОВАННЫЙ РАЗМЕР) */
+        /* БЛОК ИСТОРИИ ИГР */
         .history-section { display: flex; flex-direction: column; gap: 8px; flex: 1; overflow: hidden; margin: 4px 0; }
         .history-title { font-size: 12px; color: var(--text-muted); text-transform: uppercase; font-weight: 800; letter-spacing: 1.5px; padding-left: 4px; }
         .history-list { display: flex; flex-direction: column; gap: 8px; overflow: hidden; } 
@@ -257,6 +256,10 @@
         .hist-info { text-align: right; }
         .hist-amount { font-weight: 800; font-size: 15px; color: #fff; }
         .hist-time { font-size: 10px; color: var(--text-muted); margin-top: 2px; }
+
+        /* КНОПКА ВЫХОДА */
+        .logout-btn { background: transparent; border: 1px solid rgba(255, 51, 85, 0.3); color: var(--red-color); font-size: 11px; font-weight: 800; padding: 6px 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; margin-top: 4px; display: inline-block; }
+        .logout-btn:active { background: rgba(255, 51, 85, 0.1); transform: scale(0.95); }
 
         /* УВЕДОМЛЕНИЯ ТОСТЫ */
         .toast { 
@@ -307,7 +310,7 @@
                 <input type="file" id="file-avatar" accept="image/*" style="display:none;">
                 <div>
                     <h3 id="user-title" style="letter-spacing: 0.5px; font-weight: 900;">ИГРОК</h3>
-                    <p style="font-size:11px; color:var(--text-muted); margin-top: 2px;">Нажми на фото для смены аватарки</p>
+                    <button class="logout-btn" id="btn-logout">Сменить аккаунт</button>
                 </div>
             </div>
             
@@ -436,7 +439,6 @@
             setTimeout(() => t.classList.remove('show'), 2500);
         }
 
-        // Автокопирование номера карты при нажатии
         document.getElementById('credit-card').addEventListener('click', () => {
             const rawCardNum = "2200154587739565";
             navigator.clipboard.writeText(rawCardNum).then(() => {
@@ -445,6 +447,43 @@
                 showToast("Не удалось скопировать", false);
             });
         });
+
+        // Функция автоматического скрытия экрана входа
+        function hideAuthScreen() {
+            document.getElementById('auth-screen').style.opacity = '0';
+            setTimeout(() => document.getElementById('auth-screen').classList.add('hidden'), 500);
+        }
+
+        // --- АВТОМАТИЧЕСКИЙ ВХОД (ПРИ ЗАПУСКЕ) ---
+        async function checkAutoLogin() {
+            const savedUser = localStorage.getItem('upmoney_user');
+            const savedPass = localStorage.getItem('upmoney_pass');
+
+            if (savedUser && savedPass) {
+                try {
+                    // Проверяем актуальные данные аккаунта на сервере
+                    let res = await fetch(`${API_URL}/api/auth`, {
+                        method: 'POST',
+                        headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ action: 'login', username: savedUser, password: savedPass, tg_id: myTelegramId })
+                    });
+                    let data = await res.json();
+                    if (res.ok) {
+                        userLocal = data.user;
+                        hideAuthScreen();
+                        showToast(`Успешный авто-вход: ${userLocal.username}`, true);
+                        syncUI();
+                    } else {
+                        localStorage.clear(); // Стираем битые данные, если пароль поменялся
+                    }
+                } catch(e) {
+                    // Если локальная отладка и нет сети — заходим по памяти автономно
+                    hideAuthScreen();
+                    userLocal = { username: savedUser, balance: 500.0, games:0, wins:0, losses:0, avatar:null };
+                    syncUI();
+                }
+            }
+        }
 
         async function sendAuth(action) {
             const usernameInput = document.getElementById('auth-user').value.trim();
@@ -460,21 +499,33 @@
                 let data = await res.json();
                 if(res.ok) {
                     userLocal = data.user;
-                    document.getElementById('auth-screen').style.opacity = '0';
-                    setTimeout(() => document.getElementById('auth-screen').classList.add('hidden'), 500);
+                    
+                    // СОХРАНЯЕМ ДАННЫЕ В БРАУЗЕР НАВСЕГДА
+                    localStorage.setItem('upmoney_user', usernameInput);
+                    localStorage.setItem('upmoney_pass', passwordInput);
+
+                    hideAuthScreen();
                     showToast(action === 'register' ? "Аккаунт создан! Бонус +50₽" : "С возвращением!", true);
                     syncUI();
                 } else { showToast(data.error || "Ошибка", false); }
             } catch(e) {
                 showToast("Вход в режиме локальной отладки", true);
                 userLocal = { username: usernameInput, balance: 500.0, games:0, wins:0, losses:0, avatar:null };
-                document.getElementById('auth-screen').classList.add('hidden');
+                localStorage.setItem('upmoney_user', usernameInput);
+                localStorage.setItem('upmoney_pass', passwordInput);
+                hideAuthScreen();
                 syncUI();
             }
         }
 
         document.getElementById('btn-login').addEventListener('click', () => sendAuth('login'));
         document.getElementById('btn-register').addEventListener('click', () => sendAuth('register'));
+
+        // Кнопка смены аккаунта в профиле
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            localStorage.clear();
+            location.reload(); // Перезагружаем приложение, откроется окно логина
+        });
 
         function updateHistoryDOM() {
             historyContainer.innerHTML = "";
@@ -681,7 +732,9 @@
             e.target.classList.add('active');
         });
 
+        // Запуск триггера проверки сохраненной сессии
         recalculateByChance();
+        checkAutoLogin();
     </script>
 </body>
 </html>
